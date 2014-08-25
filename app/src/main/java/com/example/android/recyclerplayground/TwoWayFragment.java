@@ -46,7 +46,7 @@ public class TwoWayFragment extends Fragment implements AdapterView.OnItemClickL
 
         mList = (RecyclerView) rootView.findViewById(R.id.section_list);
         mList.setLayoutManager(new GridLayoutManager());
-//        mList.addItemDecoration(new InsetDecoration(getActivity()));
+        mList.addItemDecoration(new InsetDecoration(getActivity()));
         mList.setOnScrollListener(this);
 
         SimpleAdapter adapter = new SimpleAdapter(SimpleAdapter.generateDummyData());

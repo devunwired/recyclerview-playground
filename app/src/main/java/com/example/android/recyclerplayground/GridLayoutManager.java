@@ -88,8 +88,8 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
 
     //This implementation always adds one to the computed count
     private void updateStaticVisibleCounts() {
-        mVisibleColumnCount = (getWidth() / mDecoratedChildWidth) + 1;
-        if (getWidth() % mDecoratedChildWidth > 0) {
+        mVisibleColumnCount = (getHorizontalSpace() / mDecoratedChildWidth) + 1;
+        if (getHorizontalSpace() % mDecoratedChildWidth > 0) {
             mVisibleColumnCount++;
         }
         //Allow minimum value for small data sets
@@ -97,16 +97,16 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
             mVisibleColumnCount = mTotalColumnCount;
         }
 
-        mVisibleRowCount = (getHeight() / mDecoratedChildHeight) + 1;
-        if (getHeight() % mDecoratedChildHeight > 0) {
+        mVisibleRowCount = (getVerticalSpace() / mDecoratedChildHeight) + 1;
+        if (getVerticalSpace() % mDecoratedChildHeight > 0) {
             mVisibleRowCount++;
         }
     }
 
     //TODO: See if we can introduce dynamic counts again in the future
     private void updateVisibleWindow() {
-        int startLeftOffset = 0;
-        int startTopOffset = 0;
+        int startLeftOffset = getPaddingLeft();
+        int startTopOffset = getPaddingTop();
 
         //Set to the value of the first child for layout updates
         if (getChildCount() != 0) {
@@ -115,12 +115,12 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
             startTopOffset = getDecoratedTop(topView);
         }
 
-        mVisibleColumnCount = (getWidth() - startLeftOffset) / mDecoratedChildWidth;
-        if (getWidth() % mDecoratedChildWidth > 0) {
+        mVisibleColumnCount = (getHorizontalSpace() - startLeftOffset) / mDecoratedChildWidth;
+        if (getHorizontalSpace() % mDecoratedChildWidth > 0) {
             mVisibleColumnCount++;
         }
-        mVisibleRowCount = (getHeight() - startTopOffset) / mDecoratedChildHeight;
-        if (getHeight() % mDecoratedChildHeight > 0) {
+        mVisibleRowCount = (getVerticalSpace() - startTopOffset) / mDecoratedChildHeight;
+        if (getVerticalSpace() % mDecoratedChildHeight > 0) {
             mVisibleRowCount++;
         }
     }
@@ -132,8 +132,8 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         if (mFirstVisiblePosition > state.getItemCount()) mFirstVisiblePosition = state.getItemCount();
 
         SparseArray<View> viewCache = new SparseArray<View>(getChildCount());
-        int startLeftOffset = 0;
-        int startTopOffset = 0;
+        int startLeftOffset = getPaddingLeft();
+        int startTopOffset = getPaddingTop();
         if (getChildCount() != 0) {
             final View topView = getChildAt(0);
             startLeftOffset = getDecoratedLeft(topView);
@@ -282,7 +282,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
             //Check right bound
             if (rightBoundReached) {
                 //If we've reached the last column, enforce limits
-                int bottomOffset = Math.min(getWidth() - getDecoratedRight(bottomView), 0);
+                int bottomOffset = Math.min(getHorizontalSpace() - getDecoratedRight(bottomView) + getPaddingRight(), 0);
                 delta = Math.max(-dx, bottomOffset);
             } else {
                 //No limits while the last column isn't visible
@@ -291,7 +291,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         } else { // Contents are scrolling right
             //Check left bound
             if (leftBoundReached) {
-                int topOffset = Math.max(-getDecoratedLeft(topView), 0);
+                int topOffset = Math.max(-getDecoratedLeft(topView) + getPaddingLeft(), 0);
                 delta = Math.min(-dx, topOffset);
             } else {
                 delta = -dx;
@@ -357,14 +357,16 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
                 int remainingSpace;
                 if (rowOfIndex(getChildCount() - 1) >= (maxRowCount - 1)) {
                     //We are truly at the bottom, determine how far
-                    remainingSpace = getHeight() - getDecoratedBottom(bottomView);
+                    remainingSpace = getVerticalSpace() - getDecoratedBottom(bottomView)
+                            + getPaddingBottom();
                 } else {
                     /*
                      * Extra space added to account for allowing bottom space in the grid.
                      * This occurs when the overlap in the last row is not large enough to
                      * ensure that at least one element in that row isn't fully recycled.
                      */
-                    remainingSpace = getHeight() - (getDecoratedBottom(bottomView) + mDecoratedChildHeight);
+                    remainingSpace = getVerticalSpace() - (getDecoratedBottom(bottomView)
+                            + mDecoratedChildHeight) + getPaddingBottom();
                 }
                 int bottomOffset = Math.min(remainingSpace, 0);
                 delta = Math.max(-dy, bottomOffset);
@@ -375,7 +377,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         } else { // Contents are scrolling down
             //Check against top bound
             if (topBoundReached) {
-                int topOffset = Math.max(-getDecoratedTop(topView), 0);
+                int topOffset = Math.max(-getDecoratedTop(topView)+getPaddingTop(), 0);
                 delta = Math.min(-dy, topOffset);
             } else {
                 delta = -dy;
@@ -405,7 +407,6 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         return (Math.abs(delta) != Math.abs(dy)) ? Math.abs(delta) : dy;
     }
 
-    //TODO: Support View Padding?
     private int getHorizontalSpace() {
         return getWidth() - getPaddingRight() - getPaddingLeft();
     }

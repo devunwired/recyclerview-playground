@@ -27,65 +27,6 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
     private int mVisibleColumnCount;
     private int mVisibleRowCount;
 
-    private int positionOfIndex(int childIndex) {
-        return positionOfIndex(mFirstVisiblePosition, childIndex);
-    }
-
-    /*
-     * Mapping between child view indices and adapter data
-     * positions helps fill the proper views during scrolling.
-     */
-    private int positionOfIndex(int firstPosition, int childIndex) {
-        int row = childIndex / mVisibleColumnCount;
-        int column = childIndex % mVisibleColumnCount;
-
-        return firstPosition + (row * getTotalColumnCount()) + column;
-    }
-
-    private int rowOfIndex(int childIndex) {
-        return rowOfIndex(mFirstVisiblePosition, childIndex);
-    }
-
-    private int rowOfIndex(int firstPosition, int childIndex) {
-        int position = positionOfIndex(firstPosition, childIndex);
-
-        return position / getTotalColumnCount();
-    }
-
-    private int getFirstVisibleColumn() {
-        return (mFirstVisiblePosition % getTotalColumnCount());
-    }
-
-    private int getLastVisibleColumn() {
-        return getFirstVisibleColumn() + mVisibleColumnCount;
-    }
-
-    private int getFirstVisibleRow() {
-        return (mFirstVisiblePosition / getTotalColumnCount());
-    }
-
-    private int getLastVisibleRow() {
-        return getFirstVisibleRow() + mVisibleRowCount;
-    }
-
-    private int getVisibleChildCount() {
-        return mVisibleColumnCount * mVisibleRowCount;
-    }
-
-    private int getTotalColumnCount() {
-        return mTotalColumnCount;
-    }
-
-    private int getTotalRowCount(RecyclerView.State state) {
-        int maxRow = state.getItemCount() / mTotalColumnCount;
-        //Bump the row count if it's not exactly even
-        if (state.getItemCount() % mTotalColumnCount != 0) {
-            maxRow++;
-        }
-
-        return maxRow;
-    }
-
     //This implementation always adds one to the computed count
     private void updateStaticVisibleCounts() {
         mVisibleColumnCount = (getHorizontalSpace() / mDecoratedChildWidth) + 1;
@@ -131,6 +72,11 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         if (mFirstVisiblePosition < 0) mFirstVisiblePosition = 0;
         if (mFirstVisiblePosition > state.getItemCount()) mFirstVisiblePosition = state.getItemCount();
 
+        /*
+         * First, we will detach all existing views from the layout.
+         * detachView() is a lightweight operation that we can use to
+         * quickly reorder views without a full add/remove.
+         */
         SparseArray<View> viewCache = new SparseArray<View>(getChildCount());
         int startLeftOffset = getPaddingLeft();
         int startTopOffset = getPaddingTop();
@@ -169,7 +115,12 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
             lastFillPosition = mFirstVisiblePosition;
         }
 
-        //Fill in views, either from cache or recycler
+        /*
+         * Next, we supply the grid of items that are deemed visible.
+         * If these items were previously there, they will simple be
+         * re-attached. New views that must be created are obtained
+         * from the Recycler and added.
+         */
         int leftOffset = startLeftOffset;
         int topOffset = startTopOffset;
 
@@ -184,6 +135,12 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
             //Layout this position
             View view = viewCache.get(nextPosition);
             if (view == null) {
+                /*
+                 * The Recycler will give us either a newly constructed view,
+                 * or a recycled view it has on-hand. In either case, the
+                 * view will already be fully bound to the data by the
+                 * adapter for us.
+                 */
                 view = recycler.getViewForPosition(nextPosition);
                 addView(view);
 
@@ -208,7 +165,11 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
 
-        //Recycle all remaining views in cache
+        /*
+         * Finally, we ask the Recycler to scrap and store any views
+         * that we did not re-attach. These are views that are not currently
+         * necessary because they are no longer visible.
+         */
         for (int i=0; i < viewCache.size(); i++) {
             recycler.recycleView(viewCache.valueAt(i));
         }
@@ -239,14 +200,14 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
          * us to compute the following values up front because the
          * won't change.
          */
-
         mDecoratedChildWidth = getDecoratedMeasuredWidth(scrap);
         mDecoratedChildHeight = getDecoratedMeasuredHeight(scrap);
 
-        detachAndScrapAttachedViews(recycler);
-
         updateStaticVisibleCounts();
 
+        //Clear all attached views into the recycle bin
+        detachAndScrapAttachedViews(recycler);
+        //Fill the grid for the initial layout of views
         fillGrid(DIRECTION_NONE, recycler, state);
     }
 
@@ -407,18 +368,83 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         return (Math.abs(delta) != Math.abs(dy)) ? Math.abs(delta) : dy;
     }
 
+    /*
+     * We must override this method to provide the default layout
+     * parameters that each child view will receive when added.
+     */
+    @Override
+    public RecyclerView.LayoutParams generateDefaultLayoutParams() {
+        return new RecyclerView.LayoutParams(
+                RecyclerView.LayoutParams.WRAP_CONTENT,
+                RecyclerView.LayoutParams.WRAP_CONTENT);
+    }
+
+    /** Private Helpers and Metrics Accessors */
+
+    private int positionOfIndex(int childIndex) {
+        return positionOfIndex(mFirstVisiblePosition, childIndex);
+    }
+
+    /*
+     * Mapping between child view indices and adapter data
+     * positions helps fill the proper views during scrolling.
+     */
+    private int positionOfIndex(int firstPosition, int childIndex) {
+        int row = childIndex / mVisibleColumnCount;
+        int column = childIndex % mVisibleColumnCount;
+
+        return firstPosition + (row * getTotalColumnCount()) + column;
+    }
+
+    private int rowOfIndex(int childIndex) {
+        return rowOfIndex(mFirstVisiblePosition, childIndex);
+    }
+
+    private int rowOfIndex(int firstPosition, int childIndex) {
+        int position = positionOfIndex(firstPosition, childIndex);
+
+        return position / getTotalColumnCount();
+    }
+
+    private int getFirstVisibleColumn() {
+        return (mFirstVisiblePosition % getTotalColumnCount());
+    }
+
+    private int getLastVisibleColumn() {
+        return getFirstVisibleColumn() + mVisibleColumnCount;
+    }
+
+    private int getFirstVisibleRow() {
+        return (mFirstVisiblePosition / getTotalColumnCount());
+    }
+
+    private int getLastVisibleRow() {
+        return getFirstVisibleRow() + mVisibleRowCount;
+    }
+
+    private int getVisibleChildCount() {
+        return mVisibleColumnCount * mVisibleRowCount;
+    }
+
+    private int getTotalColumnCount() {
+        return mTotalColumnCount;
+    }
+
+    private int getTotalRowCount(RecyclerView.State state) {
+        int maxRow = state.getItemCount() / mTotalColumnCount;
+        //Bump the row count if it's not exactly even
+        if (state.getItemCount() % mTotalColumnCount != 0) {
+            maxRow++;
+        }
+
+        return maxRow;
+    }
+
     private int getHorizontalSpace() {
         return getWidth() - getPaddingRight() - getPaddingLeft();
     }
 
     private int getVerticalSpace() {
         return getHeight() - getPaddingBottom() - getPaddingTop();
-    }
-
-    @Override
-    public RecyclerView.LayoutParams generateDefaultLayoutParams() {
-        return new RecyclerView.LayoutParams(
-                RecyclerView.LayoutParams.WRAP_CONTENT,
-                RecyclerView.LayoutParams.WRAP_CONTENT);
     }
 }

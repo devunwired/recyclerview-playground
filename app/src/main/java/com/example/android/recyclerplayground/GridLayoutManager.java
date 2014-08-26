@@ -66,7 +66,6 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    private int lastFillPosition = 0;
     private void fillGrid(int direction, RecyclerView.Recycler recycler, RecyclerView.State state) {
         //Always range check visible position
         if (mFirstVisiblePosition < 0) mFirstVisiblePosition = 0;
@@ -101,7 +100,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
 
             //Temporarily detach existing views, indexed by position
             for (int i=0; i < getChildCount(); i++) {
-                int position = positionOfIndex(lastFillPosition, i);
+                int position = positionOfIndex(mFirstVisiblePosition, i);
                 final View child = getChildAt(i);
                 viewCache.put(position, child);
             }
@@ -110,9 +109,23 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
 
-        //TODO: Can we get rid of the interim position value somehow?
-        if (lastFillPosition != mFirstVisiblePosition) {
-            lastFillPosition = mFirstVisiblePosition;
+        /*
+         * Next, we advance the visible position based on the fill direction.
+         * DIRECTION_NONE doesn't advance the position in any direction.
+         */
+        switch (direction) {
+            case DIRECTION_START:
+                mFirstVisiblePosition--;
+                break;
+            case DIRECTION_END:
+                mFirstVisiblePosition++;
+                break;
+            case DIRECTION_UP:
+                mFirstVisiblePosition -= getTotalColumnCount();
+                break;
+            case DIRECTION_DOWN:
+                mFirstVisiblePosition += getTotalColumnCount();
+                break;
         }
 
         /*
@@ -263,12 +276,10 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
 
         if (dx > 0) {
             if (getDecoratedRight(topView) < 0 && !rightBoundReached) {
-                mFirstVisiblePosition++;
                 fillGrid(DIRECTION_END, recycler, state);
             }
         } else {
             if (getDecoratedLeft(topView) > 0 && !leftBoundReached) {
-                mFirstVisiblePosition--;
                 fillGrid(DIRECTION_START, recycler, state);
             }
         }
@@ -349,12 +360,10 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
 
         if (dy > 0) {
             if (getDecoratedBottom(topView) < 0 && !bottomBoundReached) {
-                mFirstVisiblePosition += getTotalColumnCount();
                 fillGrid(DIRECTION_DOWN, recycler, state);
             }
         } else {
             if (getDecoratedTop(topView) > 0 && !topBoundReached) {
-                mFirstVisiblePosition -= getTotalColumnCount();
                 fillGrid(DIRECTION_UP, recycler, state);
             }
         }

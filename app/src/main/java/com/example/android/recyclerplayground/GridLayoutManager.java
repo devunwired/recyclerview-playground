@@ -1,6 +1,7 @@
 package com.example.android.recyclerplayground;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
@@ -27,39 +28,62 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
     private int mVisibleColumnCount;
     private int mVisibleRowCount;
 
-    //This implementation always adds one to the computed count
-    private void updateStaticVisibleCounts() {
-        mVisibleColumnCount = (getHorizontalSpace() / mDecoratedChildWidth) + 1;
-        if (getHorizontalSpace() % mDecoratedChildWidth > 0) {
-            mVisibleColumnCount++;
-        }
-        //Allow minimum value for small data sets
-        if (mVisibleColumnCount > mTotalColumnCount) {
-            mVisibleColumnCount = mTotalColumnCount;
-        }
+    /*
+     * This method is your initial call from the framework. You will receive it when you
+     * need to start laying out the initial set of views. This method will not be called
+     * repeatedly, so don't rely on it to continually process changes during user
+     * interaction.
+     */
+    @Override
+    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+        //We have nothing to show for an empty data set
+        if (state.getItemCount() == 0) return;
 
-        mVisibleRowCount = (getVerticalSpace() / mDecoratedChildHeight) + 1;
-        if (getVerticalSpace() % mDecoratedChildHeight > 0) {
-            mVisibleRowCount++;
-        }
+        //Make the grid as square as possible, column count is root of the data set
+        mTotalColumnCount = (int) Math.round(Math.sqrt(state.getItemCount()));
+
+        //Scrap measure one child
+        View scrap = recycler.getViewForPosition(0);
+        addView(scrap);
+        measureChildWithMargins(scrap, 0, 0);
+
+        /*
+         * We make some assumptions in this code based on every child
+         * view being the same size (i.e. a uniform grid). This allows
+         * us to compute the following values up front because the
+         * won't change.
+         */
+        mDecoratedChildWidth = getDecoratedMeasuredWidth(scrap);
+        mDecoratedChildHeight = getDecoratedMeasuredHeight(scrap);
+
+        updateVisibleWindow(0, 0);
+
+        //Clear all attached views into the recycle bin
+        mFirstVisiblePosition = 0;
+        detachAndScrapAttachedViews(recycler);
+        //Fill the grid for the initial layout of views
+        fillGrid(DIRECTION_NONE, recycler, state);
     }
 
-    //TODO: See if we can introduce dynamic counts again in the future
-    private void updateVisibleWindow() {
-        int startLeftOffset = getPaddingLeft();
-        int startTopOffset = getPaddingTop();
-
-        //Set to the value of the first child for layout updates
-        if (getChildCount() != 0) {
-            final View topView = getChildAt(0);
-            startLeftOffset = getDecoratedLeft(topView);
-            startTopOffset = getDecoratedTop(topView);
-        }
+    /*
+     * Based on the current scroll position offsets, compute how many
+     * rows/columns should be visible. This sliding window ensures that
+     * the bare minimum number of views necessary is attached at any point.
+     */
+    private void updateVisibleWindow(int startLeftOffset, int startTopOffset) {
 
         mVisibleColumnCount = (getHorizontalSpace() - startLeftOffset) / mDecoratedChildWidth;
         if (getHorizontalSpace() % mDecoratedChildWidth > 0) {
             mVisibleColumnCount++;
         }
+
+        //Allow minimum value for small data sets
+        if (mVisibleColumnCount > mTotalColumnCount) {
+            mVisibleColumnCount = mTotalColumnCount;
+        }
+        //Enforce maximum value
+        mVisibleColumnCount = Math.min(mTotalColumnCount - getFirstVisibleColumn(), mVisibleColumnCount);
+
         mVisibleRowCount = (getVerticalSpace() - startTopOffset) / mDecoratedChildHeight;
         if (getVerticalSpace() % mDecoratedChildHeight > 0) {
             mVisibleRowCount++;
@@ -98,12 +122,18 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
                     break;
             }
 
-            //Temporarily detach existing views, indexed by position
+            //Cache all views by their existing position, before updating counts
             for (int i=0; i < getChildCount(); i++) {
                 int position = positionOfIndex(mFirstVisiblePosition, i);
                 final View child = getChildAt(i);
                 viewCache.put(position, child);
             }
+
+            //Update currently visible counts before detaching views
+            updateVisibleWindow(startLeftOffset, startTopOffset);
+
+            //Temporarily detach all views.
+            // Views we still need will be added back at the proper index.
             for (int i=0; i < viewCache.size(); i++) {
                 detachView(viewCache.valueAt(i));
             }
@@ -136,7 +166,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
          */
         int leftOffset = startLeftOffset;
         int topOffset = startTopOffset;
-
+        Log.d(TAG, "Laying out "+getVisibleChildCount());
         for (int i = 0; i < getVisibleChildCount(); i++) {
             int nextPosition = positionOfIndex(i);
 
@@ -144,7 +174,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
                 //Item space beyond the data set, don't attempt to add a view
                 continue;
             }
-
+            Log.i(TAG, nextPosition+": "+leftOffset+","+topOffset);
             //Layout this position
             View view = viewCache.get(nextPosition);
             if (view == null) {
@@ -157,14 +187,17 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
                 view = recycler.getViewForPosition(nextPosition);
                 addView(view);
 
-                //TODO: Verify we don't need to measure/layout
+                /*
+                 * It is prudent to measure/layout each new view we
+                 * receive from the Recycler. We don't have to do
+                 * this for views we are just re-arranging.
+                 */
                 measureChildWithMargins(view, 0, 0);
-
                 layoutDecorated(view, leftOffset, topOffset,
                         leftOffset + mDecoratedChildWidth,
                         topOffset + mDecoratedChildHeight);
             } else {
-                //Reattach from cache
+                //Re-attach the cached view at its new index
                 attachView(view);
                 viewCache.remove(nextPosition);
             }
@@ -186,42 +219,6 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         for (int i=0; i < viewCache.size(); i++) {
             recycler.recycleView(viewCache.valueAt(i));
         }
-    }
-
-    /*
-     * This method is your initial call from the framework. You will receive it when you
-     * need to start laying out the initial set of views. This method will not be called
-     * repeatedly, so don't rely on it to continually process changes during user
-     * interaction.
-     */
-    @Override
-    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-        //We have nothing to show for an empty data set
-        if (state.getItemCount() == 0) return;
-
-        //Make the grid as square as possible, column count is root of the data set
-        mTotalColumnCount = (int) Math.round(Math.sqrt(state.getItemCount()));
-
-        //Scrap measure one child
-        View scrap = recycler.getViewForPosition(0);
-        addView(scrap);
-        measureChildWithMargins(scrap, 0, 0);
-
-        /*
-         * We make some assumptions in this code based on every child
-         * view being the same size (i.e. a uniform grid). This allows
-         * us to compute the following values up front because the
-         * won't change.
-         */
-        mDecoratedChildWidth = getDecoratedMeasuredWidth(scrap);
-        mDecoratedChildHeight = getDecoratedMeasuredHeight(scrap);
-
-        updateStaticVisibleCounts();
-
-        //Clear all attached views into the recycle bin
-        detachAndScrapAttachedViews(recycler);
-        //Fill the grid for the initial layout of views
-        fillGrid(DIRECTION_NONE, recycler, state);
     }
 
     /*
@@ -277,10 +274,14 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         if (dx > 0) {
             if (getDecoratedRight(topView) < 0 && !rightBoundReached) {
                 fillGrid(DIRECTION_END, recycler, state);
+            } else if (!rightBoundReached) {
+                fillGrid(DIRECTION_NONE, recycler, state);
             }
         } else {
             if (getDecoratedLeft(topView) > 0 && !leftBoundReached) {
                 fillGrid(DIRECTION_START, recycler, state);
+            } else if (!leftBoundReached) {
+                fillGrid(DIRECTION_NONE, recycler, state);
             }
         }
 
@@ -361,10 +362,14 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         if (dy > 0) {
             if (getDecoratedBottom(topView) < 0 && !bottomBoundReached) {
                 fillGrid(DIRECTION_DOWN, recycler, state);
+            } else if (!bottomBoundReached) {
+                fillGrid(DIRECTION_NONE, recycler, state);
             }
         } else {
             if (getDecoratedTop(topView) > 0 && !topBoundReached) {
                 fillGrid(DIRECTION_UP, recycler, state);
+            } else if (!topBoundReached) {
+                fillGrid(DIRECTION_NONE, recycler, state);
             }
         }
 

@@ -1,7 +1,6 @@
 package com.example.android.recyclerplayground;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
@@ -166,7 +165,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
          */
         int leftOffset = startLeftOffset;
         int topOffset = startTopOffset;
-        Log.d(TAG, "Laying out "+getVisibleChildCount());
+
         for (int i = 0; i < getVisibleChildCount(); i++) {
             int nextPosition = positionOfIndex(i);
 
@@ -174,7 +173,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
                 //Item space beyond the data set, don't attempt to add a view
                 continue;
             }
-            Log.i(TAG, nextPosition+": "+leftOffset+","+topOffset);
+
             //Layout this position
             View view = viewCache.get(nextPosition);
             if (view == null) {

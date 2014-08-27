@@ -1,11 +1,11 @@
 package com.example.android.recyclerplayground;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
 public class GridLayoutManager extends RecyclerView.LayoutManager {
-    //TODO: Fix fling bug with bounds
 
     private static final String TAG = GridLayoutManager.class.getSimpleName();
 
@@ -252,8 +252,8 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
             //Check right bound
             if (rightBoundReached) {
                 //If we've reached the last column, enforce limits
-                int bottomOffset = Math.min(getHorizontalSpace() - getDecoratedRight(bottomView) + getPaddingRight(), 0);
-                delta = Math.max(-dx, bottomOffset);
+                int rightOffset = getHorizontalSpace() - getDecoratedRight(bottomView) + getPaddingRight();
+                delta = Math.max(-dx, rightOffset);
             } else {
                 //No limits while the last column isn't visible
                 delta = -dx;
@@ -261,15 +261,15 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         } else { // Contents are scrolling right
             //Check left bound
             if (leftBoundReached) {
-                int topOffset = Math.max(-getDecoratedLeft(topView) + getPaddingLeft(), 0);
-                delta = Math.min(-dx, topOffset);
+                int leftOffset = -getDecoratedLeft(topView) + getPaddingLeft();
+                delta = Math.min(-dx, leftOffset);
             } else {
                 delta = -dx;
             }
         }
 
         offsetChildrenHorizontal(delta);
-
+        Log.d(TAG, "Prefill: "+getDecoratedRight(getChildAt(getChildCount()-1))+","+getDecoratedBottom(getChildAt(getChildCount() - 1)));
         if (dx > 0) {
             if (getDecoratedRight(topView) < 0 && !rightBoundReached) {
                 fillGrid(DIRECTION_END, recycler, state);
@@ -283,7 +283,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
                 fillGrid(DIRECTION_NONE, recycler, state);
             }
         }
-
+        Log.i(TAG, "Postfill: "+getDecoratedRight(getChildAt(getChildCount()-1))+","+getDecoratedBottom(getChildAt(getChildCount()-1)));
         /*
          * Return value determines if a boundary has been reached
          * (for edge effects and flings). If returned value does not
@@ -326,10 +326,10 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
             //Check against bottom bound
             if (bottomBoundReached) {
                 //If we've reached the last row, enforce limits
-                int remainingSpace;
+                int bottomOffset;
                 if (rowOfIndex(getChildCount() - 1) >= (maxRowCount - 1)) {
                     //We are truly at the bottom, determine how far
-                    remainingSpace = getVerticalSpace() - getDecoratedBottom(bottomView)
+                    bottomOffset = getVerticalSpace() - getDecoratedBottom(bottomView)
                             + getPaddingBottom();
                 } else {
                     /*
@@ -337,10 +337,10 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
                      * This occurs when the overlap in the last row is not large enough to
                      * ensure that at least one element in that row isn't fully recycled.
                      */
-                    remainingSpace = getVerticalSpace() - (getDecoratedBottom(bottomView)
+                    bottomOffset = getVerticalSpace() - (getDecoratedBottom(bottomView)
                             + mDecoratedChildHeight) + getPaddingBottom();
                 }
-                int bottomOffset = Math.min(remainingSpace, 0);
+
                 delta = Math.max(-dy, bottomOffset);
             } else {
                 //No limits while the last row isn't visible
@@ -349,7 +349,8 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         } else { // Contents are scrolling down
             //Check against top bound
             if (topBoundReached) {
-                int topOffset = Math.max(-getDecoratedTop(topView)+getPaddingTop(), 0);
+                int topOffset = -getDecoratedTop(topView) + getPaddingTop();
+
                 delta = Math.min(-dy, topOffset);
             } else {
                 delta = -dy;

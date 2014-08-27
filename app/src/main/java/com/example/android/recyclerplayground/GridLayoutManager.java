@@ -37,7 +37,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
         //We have nothing to show for an empty data set
         if (getItemCount() == 0) return;
-        Log.d(TAG, "onLayoutChildren");
+
         //Make the grid as square as possible, column count is root of the data set
         mTotalColumnCount = (int) Math.round(Math.sqrt(getItemCount()));
 
@@ -55,7 +55,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         mDecoratedChildWidth = getDecoratedMeasuredWidth(scrap);
         mDecoratedChildHeight = getDecoratedMeasuredHeight(scrap);
 
-        updateVisibleWindow(0, 0);
+        updateWindowSizing();
 
         //Clear all attached views into the recycle bin
         mFirstVisiblePosition = 0;
@@ -79,13 +79,12 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /*
-     * Based on the current scroll position offsets, compute how many
-     * rows/columns should be visible. This sliding window ensures that
-     * the bare minimum number of views necessary is attached at any point.
+     * Rather than continuously checking how many views we can fit
+     * based on scroll offsets, we simplify the math by computing the
+     * visible grid as what will initially fit on screen, plus one.
      */
-    private void updateVisibleWindow(int startLeftOffset, int startTopOffset) {
-
-        mVisibleColumnCount = (getHorizontalSpace() - startLeftOffset) / mDecoratedChildWidth;
+    private void updateWindowSizing() {
+        mVisibleColumnCount = (getHorizontalSpace() / mDecoratedChildWidth) + 1;
         if (getHorizontalSpace() % mDecoratedChildWidth > 0) {
             mVisibleColumnCount++;
         }
@@ -97,7 +96,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         //Enforce maximum value
         mVisibleColumnCount = Math.min(mTotalColumnCount - getFirstVisibleColumn(), mVisibleColumnCount);
 
-        mVisibleRowCount = (getVerticalSpace() - startTopOffset) / mDecoratedChildHeight;
+        mVisibleRowCount = (getVerticalSpace()/ mDecoratedChildHeight) + 1;
         if (getVerticalSpace() % mDecoratedChildHeight > 0) {
             mVisibleRowCount++;
         }
@@ -141,9 +140,6 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
                 final View child = getChildAt(i);
                 viewCache.put(position, child);
             }
-
-            //Update currently visible counts before detaching views
-            updateVisibleWindow(startLeftOffset, startTopOffset);
 
             //Temporarily detach all views.
             // Views we still need will be added back at the proper index.

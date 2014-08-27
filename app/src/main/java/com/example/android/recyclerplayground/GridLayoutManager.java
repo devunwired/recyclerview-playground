@@ -234,6 +234,18 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
+    @Override
+    public void scrollToPosition(int position) {
+        //TODO: Handle programmatic scrolling
+        super.scrollToPosition(position);
+    }
+
+    @Override
+    public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state, int position) {
+        //TODO: Handle programmatic scrolling
+        super.smoothScrollToPosition(recyclerView, state, position);
+    }
+
     /*
      * Use this method to tell the RecyclerView if scrolling is even possible
      * in the horizontal direction.

@@ -1,6 +1,7 @@
 package com.example.android.recyclerplayground;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
@@ -35,10 +36,10 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
         //We have nothing to show for an empty data set
-        if (state.getItemCount() == 0) return;
-
+        if (getItemCount() == 0) return;
+        Log.d(TAG, "onLayoutChildren");
         //Make the grid as square as possible, column count is root of the data set
-        mTotalColumnCount = (int) Math.round(Math.sqrt(state.getItemCount()));
+        mTotalColumnCount = (int) Math.round(Math.sqrt(getItemCount()));
 
         //Scrap measure one child
         View scrap = recycler.getViewForPosition(0);
@@ -66,12 +67,14 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onItemsAdded(RecyclerView recyclerView, int positionStart, int itemCount) {
         //TODO: Monitor adapter changes
+        Log.i(TAG, "OnItemsAdded");
         super.onItemsAdded(recyclerView, positionStart, itemCount);
     }
 
     @Override
     public void onItemsRemoved(RecyclerView recyclerView, int positionStart, int itemCount) {
         //TODO: Monitor adapter changes
+        Log.i(TAG, "OnItemsRemoved");
         super.onItemsRemoved(recyclerView, positionStart, itemCount);
     }
 
@@ -103,7 +106,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
     private void fillGrid(int direction, RecyclerView.Recycler recycler, RecyclerView.State state) {
         //Always range check visible position
         if (mFirstVisiblePosition < 0) mFirstVisiblePosition = 0;
-        if (mFirstVisiblePosition > state.getItemCount()) mFirstVisiblePosition = state.getItemCount();
+        if (mFirstVisiblePosition > getItemCount()) mFirstVisiblePosition = getItemCount();
 
         /*
          * First, we will detach all existing views from the layout.
@@ -134,7 +137,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
 
             //Cache all views by their existing position, before updating counts
             for (int i=0; i < getChildCount(); i++) {
-                int position = positionOfIndex(mFirstVisiblePosition, i);
+                int position = positionOfIndex(i);
                 final View child = getChildAt(i);
                 viewCache.put(position, child);
             }
@@ -180,7 +183,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         for (int i = 0; i < getVisibleChildCount(); i++) {
             int nextPosition = positionOfIndex(i);
 
-            if (nextPosition >= state.getItemCount()) {
+            if (nextPosition >= getItemCount()) {
                 //Item space beyond the data set, don't attempt to add a view
                 continue;
             }
@@ -330,7 +333,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         //Take bottom measurements from the bottom-right child.
         final View bottomView = getChildAt(getChildCount()-1);
         int delta;
-        int maxRowCount = getTotalRowCount(state);
+        int maxRowCount = getTotalRowCount();
         boolean topBoundReached = getFirstVisibleRow() == 0;
         boolean bottomBoundReached = getLastVisibleRow() >= maxRowCount;
         if (dy > 0) { // Contents are scrolling up
@@ -404,29 +407,36 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
                 RecyclerView.LayoutParams.WRAP_CONTENT);
     }
 
-    /** Private Helpers and Metrics Accessors */
+    /*
+     * This is a helper method used by RecyclerView to determine
+     * if a specific child view can be returned.
+     */
+    @Override
+    public View findViewByPosition(int position) {
+        for (int i=0; i < getChildCount(); i++) {
+            if (positionOfIndex(i) == position) {
+                return getChildAt(i);
+            }
+        }
 
-    private int positionOfIndex(int childIndex) {
-        return positionOfIndex(mFirstVisiblePosition, childIndex);
+        return null;
     }
+
+    /** Private Helpers and Metrics Accessors */
 
     /*
      * Mapping between child view indices and adapter data
      * positions helps fill the proper views during scrolling.
      */
-    private int positionOfIndex(int firstPosition, int childIndex) {
+    private int positionOfIndex(int childIndex) {
         int row = childIndex / mVisibleColumnCount;
         int column = childIndex % mVisibleColumnCount;
 
-        return firstPosition + (row * getTotalColumnCount()) + column;
+        return mFirstVisiblePosition + (row * getTotalColumnCount()) + column;
     }
 
     private int rowOfIndex(int childIndex) {
-        return rowOfIndex(mFirstVisiblePosition, childIndex);
-    }
-
-    private int rowOfIndex(int firstPosition, int childIndex) {
-        int position = positionOfIndex(firstPosition, childIndex);
+        int position = positionOfIndex(childIndex);
 
         return position / getTotalColumnCount();
     }
@@ -455,10 +465,10 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         return mTotalColumnCount;
     }
 
-    private int getTotalRowCount(RecyclerView.State state) {
-        int maxRow = state.getItemCount() / mTotalColumnCount;
+    private int getTotalRowCount() {
+        int maxRow = getItemCount() / mTotalColumnCount;
         //Bump the row count if it's not exactly even
-        if (state.getItemCount() % mTotalColumnCount != 0) {
+        if (getItemCount() % mTotalColumnCount != 0) {
             maxRow++;
         }
 

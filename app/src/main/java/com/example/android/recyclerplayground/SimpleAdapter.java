@@ -113,7 +113,7 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
     public static List<SimpleAdapter.GameItem> generateDummyData() {
         ArrayList<SimpleAdapter.GameItem> items = new ArrayList<SimpleAdapter.GameItem>();
 
-        for (int i=0; i < 100; i++) {
+        for (int i=0; i < 200; i++) {
             items.add(new SimpleAdapter.GameItem("Losers", "Winners", i, i+5));
         }
 

@@ -1,7 +1,6 @@
 package com.example.android.recyclerplayground;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
@@ -26,6 +25,9 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
     /* Metrics for the visible window of our data */
     private int mVisibleColumnCount;
     private int mVisibleRowCount;
+
+    /* Scroll Friction */
+    private float mScrollFriction = 0.75f;
 
     /*
      * This method is your initial call from the framework. You will receive it when you
@@ -62,6 +64,18 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         detachAndScrapAttachedViews(recycler);
         //Fill the grid for the initial layout of views
         fillGrid(DIRECTION_NONE, recycler, state);
+    }
+
+    @Override
+    public void onItemsAdded(RecyclerView recyclerView, int positionStart, int itemCount) {
+        //TODO: Monitor adapter changes
+        super.onItemsAdded(recyclerView, positionStart, itemCount);
+    }
+
+    @Override
+    public void onItemsRemoved(RecyclerView recyclerView, int positionStart, int itemCount) {
+        //TODO: Monitor adapter changes
+        super.onItemsRemoved(recyclerView, positionStart, itemCount);
     }
 
     /*
@@ -268,8 +282,8 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
 
-        offsetChildrenHorizontal(delta);
-        Log.d(TAG, "Prefill: "+getDecoratedRight(getChildAt(getChildCount()-1))+","+getDecoratedBottom(getChildAt(getChildCount() - 1)));
+        offsetChildrenHorizontal((int)(mScrollFriction * delta));
+
         if (dx > 0) {
             if (getDecoratedRight(topView) < 0 && !rightBoundReached) {
                 fillGrid(DIRECTION_END, recycler, state);
@@ -283,7 +297,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
                 fillGrid(DIRECTION_NONE, recycler, state);
             }
         }
-        Log.i(TAG, "Postfill: "+getDecoratedRight(getChildAt(getChildCount()-1))+","+getDecoratedBottom(getChildAt(getChildCount()-1)));
+
         /*
          * Return value determines if a boundary has been reached
          * (for edge effects and flings). If returned value does not
@@ -357,7 +371,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
 
-        offsetChildrenVertical(delta);
+        offsetChildrenVertical((int)(mScrollFriction * delta));
 
         if (dy > 0) {
             if (getDecoratedBottom(topView) < 0 && !bottomBoundReached) {
@@ -391,6 +405,15 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         return new RecyclerView.LayoutParams(
                 RecyclerView.LayoutParams.WRAP_CONTENT,
                 RecyclerView.LayoutParams.WRAP_CONTENT);
+    }
+
+    /**
+     * Set friction applied to scroll and fling behavior. This
+     * will reduce the scroll speed of a fling gesture.
+     * @param friction Friction coefficient. Values are capped at 1.0f
+     */
+    public void setScrollFriction(float friction) {
+        mScrollFriction = Math.min(1.0f, friction);
     }
 
     /** Private Helpers and Metrics Accessors */

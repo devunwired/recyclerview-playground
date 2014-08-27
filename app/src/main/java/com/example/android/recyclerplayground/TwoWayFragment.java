@@ -6,6 +6,9 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -17,6 +20,7 @@ import android.widget.Toast;
 public class TwoWayFragment extends Fragment implements AdapterView.OnItemClickListener {
 
     RecyclerView mList;
+    SimpleAdapter mAdapter;
 
     /**
      * Returns a new instance of this fragment for the given section
@@ -33,6 +37,12 @@ public class TwoWayFragment extends Fragment implements AdapterView.OnItemClickL
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_twoway, container, false);
@@ -41,11 +51,34 @@ public class TwoWayFragment extends Fragment implements AdapterView.OnItemClickL
         mList.setLayoutManager(new GridLayoutManager());
         mList.addItemDecoration(new InsetDecoration(getActivity()));
 
-        SimpleAdapter adapter = new SimpleAdapter(SimpleAdapter.generateDummyData());
-        adapter.setOnItemClickListener(this);
-        mList.setAdapter(adapter);
+        mAdapter = new SimpleAdapter();
+        mAdapter.setItemCount(196);
+        mAdapter.setOnItemClickListener(this);
+        mList.setAdapter(mAdapter);
 
         return rootView;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.grid_options, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_small:
+                mAdapter.setItemCount(25);
+                return true;
+            case R.id.action_medium:
+                mAdapter.setItemCount(196);
+                return true;
+            case R.id.action_large:
+                mAdapter.setItemCount(400);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override

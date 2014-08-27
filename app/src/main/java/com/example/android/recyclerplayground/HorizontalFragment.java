@@ -43,7 +43,8 @@ public class HorizontalFragment extends Fragment implements AdapterView.OnItemCl
         mList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
         mList.addItemDecoration(new InsetDecoration(getActivity()));
 
-        SimpleAdapter adapter = new SimpleAdapter(SimpleAdapter.generateDummyData());
+        SimpleAdapter adapter = new SimpleAdapter();
+        adapter.setItemCount(40);
         adapter.setOnItemClickListener(this);
         mList.setAdapter(adapter);
 

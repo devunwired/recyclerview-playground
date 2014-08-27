@@ -45,7 +45,8 @@ public class VerticalFragment extends Fragment implements AdapterView.OnItemClic
         //We must draw dividers ourselves
         list.addItemDecoration(new DividerDecoration(getActivity()));
 
-        SimpleAdapter adapter = new SimpleAdapter(SimpleAdapter.generateDummyData());
+        SimpleAdapter adapter = new SimpleAdapter();
+        adapter.setItemCount(100);
         adapter.setOnItemClickListener(this);
         list.setAdapter(adapter);
 

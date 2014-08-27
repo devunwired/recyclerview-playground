@@ -16,9 +16,15 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
 
     private AdapterView.OnItemClickListener mOnItemClickListener;
 
-    public SimpleAdapter(List<GameItem> items) {
+    public SimpleAdapter() {
         mItems = new ArrayList<GameItem>();
-        mItems.addAll(items);
+    }
+
+    public void setItemCount(int count) {
+        mItems.clear();
+        mItems.addAll(generateDummyData(count));
+
+        notifyDataSetChanged();
     }
 
     @Override
@@ -110,10 +116,10 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
         }
     }
 
-    public static List<SimpleAdapter.GameItem> generateDummyData() {
+    public static List<SimpleAdapter.GameItem> generateDummyData(int count) {
         ArrayList<SimpleAdapter.GameItem> items = new ArrayList<SimpleAdapter.GameItem>();
 
-        for (int i=0; i < 200; i++) {
+        for (int i=0; i < count; i++) {
             items.add(new SimpleAdapter.GameItem("Losers", "Winners", i, i+5));
         }
 

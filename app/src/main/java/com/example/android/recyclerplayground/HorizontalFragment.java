@@ -15,8 +15,7 @@ import android.widget.Toast;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class HorizontalFragment extends Fragment implements AdapterView.OnItemClickListener,
-        RecyclerView.OnScrollListener {
+public class HorizontalFragment extends Fragment implements AdapterView.OnItemClickListener {
 
     private RecyclerView mList;
 
@@ -35,12 +34,6 @@ public class HorizontalFragment extends Fragment implements AdapterView.OnItemCl
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mCounterToast = Toast.makeText(getActivity(), "", Toast.LENGTH_SHORT);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_horizontal, container, false);
@@ -49,26 +42,12 @@ public class HorizontalFragment extends Fragment implements AdapterView.OnItemCl
         //Apply the layout parameters
         mList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
         mList.addItemDecoration(new InsetDecoration(getActivity()));
-        mList.setOnScrollListener(this);
 
         SimpleAdapter adapter = new SimpleAdapter(SimpleAdapter.generateDummyData());
         adapter.setOnItemClickListener(this);
         mList.setAdapter(adapter);
 
         return rootView;
-    }
-
-    private Toast mCounterToast;
-
-    @Override
-    public void onScrollStateChanged(int newState) {
-
-    }
-
-    @Override
-    public void onScrolled(int dx, int dy) {
-        mCounterToast.setText(String.valueOf(mList.getChildCount()));
-        mCounterToast.show();
     }
 
     @Override

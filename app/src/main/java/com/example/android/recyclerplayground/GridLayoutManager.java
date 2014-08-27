@@ -26,9 +26,6 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
     private int mVisibleColumnCount;
     private int mVisibleRowCount;
 
-    /* Scroll Friction */
-    private float mScrollFriction = 0.75f;
-
     /*
      * This method is your initial call from the framework. You will receive it when you
      * need to start laying out the initial set of views. This method will not be called
@@ -282,7 +279,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
 
-        offsetChildrenHorizontal((int)(mScrollFriction * delta));
+        offsetChildrenHorizontal(delta);
 
         if (dx > 0) {
             if (getDecoratedRight(topView) < 0 && !rightBoundReached) {
@@ -371,7 +368,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
 
-        offsetChildrenVertical((int)(mScrollFriction * delta));
+        offsetChildrenVertical(delta);
 
         if (dy > 0) {
             if (getDecoratedBottom(topView) < 0 && !bottomBoundReached) {
@@ -405,15 +402,6 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         return new RecyclerView.LayoutParams(
                 RecyclerView.LayoutParams.WRAP_CONTENT,
                 RecyclerView.LayoutParams.WRAP_CONTENT);
-    }
-
-    /**
-     * Set friction applied to scroll and fling behavior. This
-     * will reduce the scroll speed of a fling gesture.
-     * @param friction Friction coefficient. Values are capped at 1.0f
-     */
-    public void setScrollFriction(float friction) {
-        mScrollFriction = Math.min(1.0f, friction);
     }
 
     /** Private Helpers and Metrics Accessors */

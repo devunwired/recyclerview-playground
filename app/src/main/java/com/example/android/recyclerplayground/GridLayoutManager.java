@@ -17,7 +17,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
     private static final int DIRECTION_DOWN = 3;
 
     /* First (top-left) position visible at any point */
-    private int mFirstVisiblePosition = 0;
+    private int mFirstVisiblePosition;
     /* Consistent size applied to all child views */
     private int mDecoratedChildWidth;
     private int mDecoratedChildHeight;
@@ -38,8 +38,29 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         //We have nothing to show for an empty data set
         if (getItemCount() == 0) return;
 
-        final int childLeft;
-        final int childTop;
+        //Make the grid as square as possible, column count is root of the data set
+        mTotalColumnCount = (int) Math.round(Math.sqrt(getItemCount()));
+
+        //Scrap measure one child
+        View scrap = recycler.getViewForPosition(0);
+        addView(scrap);
+        measureChildWithMargins(scrap, 0, 0);
+
+        /*
+         * We make some assumptions in this code based on every child
+         * view being the same size (i.e. a uniform grid). This allows
+         * us to compute the following values up front because they
+         * won't change.
+         */
+        mDecoratedChildWidth = getDecoratedMeasuredWidth(scrap);
+        mDecoratedChildHeight = getDecoratedMeasuredHeight(scrap);
+
+        detachAndScrapView(scrap, recycler);
+
+        updateWindowSizing();
+
+        int childLeft;
+        int childTop;
         if (getChildCount() == 0) { //First or empty layout
             /*
              * Reset the visible and scroll positions
@@ -54,31 +75,37 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
             final View topChild = getChildAt(0);
             childLeft = getDecoratedLeft(topChild);
             childTop = getDecoratedTop(topChild);
+
+            /*
+             * Adjust the visible position if out of bounds in the
+             * new layout.
+             */
+            int lastVisiblePosition = positionOfIndex(getChildCount() - 1);
+            if (lastVisiblePosition >= getItemCount()) {
+                lastVisiblePosition = (getItemCount() - 1);
+                int lastColumn = mVisibleColumnCount - 1;
+                int lastRow = mVisibleRowCount - 1;
+                //TODO: Fix for tiny data sets
+
+                mFirstVisiblePosition = Math.max(
+                        lastVisiblePosition - lastColumn - (lastRow * getTotalColumnCount()), 0);
+
+                childLeft = getHorizontalSpace() - (mDecoratedChildWidth * mVisibleColumnCount);
+                childTop = getVerticalSpace() - (mDecoratedChildHeight * mVisibleRowCount);
+            }
         }
-
-        //Make the grid as square as possible, column count is root of the data set
-        mTotalColumnCount = (int) Math.round(Math.sqrt(getItemCount()));
-
-        //Scrap measure one child
-        View scrap = recycler.getViewForPosition(0);
-        addView(scrap);
-        measureChildWithMargins(scrap, 0, 0);
-
-        /*
-         * We make some assumptions in this code based on every child
-         * view being the same size (i.e. a uniform grid). This allows
-         * us to compute the following values up front because the
-         * won't change.
-         */
-        mDecoratedChildWidth = getDecoratedMeasuredWidth(scrap);
-        mDecoratedChildHeight = getDecoratedMeasuredHeight(scrap);
-
-        updateWindowSizing();
 
         //Clear all attached views into the recycle bin
         detachAndScrapAttachedViews(recycler);
+
         //Fill the grid for the initial layout of views
         fillGrid(DIRECTION_NONE, childLeft, childTop, recycler);
+    }
+
+    @Override
+    public void onAdapterChanged(RecyclerView.Adapter oldAdapter, RecyclerView.Adapter newAdapter) {
+        //Completely scrap the existing layout
+        removeAllViews();
     }
 
     @Override
@@ -110,12 +137,14 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         if (mVisibleColumnCount > mTotalColumnCount) {
             mVisibleColumnCount = mTotalColumnCount;
         }
-        //Enforce maximum value
-        mVisibleColumnCount = Math.min(mTotalColumnCount - getFirstVisibleColumn(), mVisibleColumnCount);
 
         mVisibleRowCount = (getVerticalSpace()/ mDecoratedChildHeight) + 1;
         if (getVerticalSpace() % mDecoratedChildHeight > 0) {
             mVisibleRowCount++;
+        }
+
+        if (mVisibleRowCount > getTotalRowCount()) {
+            mVisibleRowCount = getTotalRowCount();
         }
     }
 
@@ -124,9 +153,8 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private void fillGrid(int direction, int emptyLeft, int emptyTop, RecyclerView.Recycler recycler) {
-        //Always range check visible position
         if (mFirstVisiblePosition < 0) mFirstVisiblePosition = 0;
-        if (mFirstVisiblePosition > getItemCount()) mFirstVisiblePosition = getItemCount();
+        if (mFirstVisiblePosition >= getItemCount()) mFirstVisiblePosition = (getItemCount() - 1);
 
         /*
          * First, we will detach all existing views from the layout.

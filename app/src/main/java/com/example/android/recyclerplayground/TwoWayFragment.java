@@ -52,7 +52,7 @@ public class TwoWayFragment extends Fragment implements AdapterView.OnItemClickL
         mList.addItemDecoration(new InsetDecoration(getActivity()));
 
         mAdapter = new SimpleAdapter();
-        mAdapter.setItemCount(196);
+        mAdapter.setItemCount(202);
         mAdapter.setOnItemClickListener(this);
         mList.setAdapter(mAdapter);
 

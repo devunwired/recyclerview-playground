@@ -38,6 +38,24 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         //We have nothing to show for an empty data set
         if (getItemCount() == 0) return;
 
+        final int childLeft;
+        final int childTop;
+        if (getChildCount() == 0) { //First or empty layout
+            /*
+             * Reset the visible and scroll positions
+             */
+            mFirstVisiblePosition = 0;
+            childLeft = childTop = 0;
+        } else { //Adapter data set changes
+            /*
+             * Keep the existing initial position, and save off
+             * the current scrolled offset.
+             */
+            final View topChild = getChildAt(0);
+            childLeft = getDecoratedLeft(topChild);
+            childTop = getDecoratedTop(topChild);
+        }
+
         //Make the grid as square as possible, column count is root of the data set
         mTotalColumnCount = (int) Math.round(Math.sqrt(getItemCount()));
 
@@ -58,10 +76,9 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         updateWindowSizing();
 
         //Clear all attached views into the recycle bin
-        mFirstVisiblePosition = 0;
         detachAndScrapAttachedViews(recycler);
         //Fill the grid for the initial layout of views
-        fillGrid(DIRECTION_NONE, recycler, state);
+        fillGrid(DIRECTION_NONE, childLeft, childTop, recycler);
     }
 
     @Override
@@ -102,7 +119,11 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    private void fillGrid(int direction, RecyclerView.Recycler recycler, RecyclerView.State state) {
+    private void fillGrid(int direction, RecyclerView.Recycler recycler) {
+        fillGrid(direction, 0, 0, recycler);
+    }
+
+    private void fillGrid(int direction, int emptyLeft, int emptyTop, RecyclerView.Recycler recycler) {
         //Always range check visible position
         if (mFirstVisiblePosition < 0) mFirstVisiblePosition = 0;
         if (mFirstVisiblePosition > getItemCount()) mFirstVisiblePosition = getItemCount();
@@ -113,8 +134,8 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
          * quickly reorder views without a full add/remove.
          */
         SparseArray<View> viewCache = new SparseArray<View>(getChildCount());
-        int startLeftOffset = getPaddingLeft();
-        int startTopOffset = getPaddingTop();
+        int startLeftOffset = getPaddingLeft() + emptyLeft;
+        int startTopOffset = getPaddingTop() + emptyTop;
         if (getChildCount() != 0) {
             final View topView = getChildAt(0);
             startLeftOffset = getDecoratedLeft(topView);
@@ -294,15 +315,15 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
 
         if (dx > 0) {
             if (getDecoratedRight(topView) < 0 && !rightBoundReached) {
-                fillGrid(DIRECTION_END, recycler, state);
+                fillGrid(DIRECTION_END, recycler);
             } else if (!rightBoundReached) {
-                fillGrid(DIRECTION_NONE, recycler, state);
+                fillGrid(DIRECTION_NONE, recycler);
             }
         } else {
             if (getDecoratedLeft(topView) > 0 && !leftBoundReached) {
-                fillGrid(DIRECTION_START, recycler, state);
+                fillGrid(DIRECTION_START, recycler);
             } else if (!leftBoundReached) {
-                fillGrid(DIRECTION_NONE, recycler, state);
+                fillGrid(DIRECTION_NONE, recycler);
             }
         }
 
@@ -383,15 +404,15 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
 
         if (dy > 0) {
             if (getDecoratedBottom(topView) < 0 && !bottomBoundReached) {
-                fillGrid(DIRECTION_DOWN, recycler, state);
+                fillGrid(DIRECTION_DOWN, recycler);
             } else if (!bottomBoundReached) {
-                fillGrid(DIRECTION_NONE, recycler, state);
+                fillGrid(DIRECTION_NONE, recycler);
             }
         } else {
             if (getDecoratedTop(topView) > 0 && !topBoundReached) {
-                fillGrid(DIRECTION_UP, recycler, state);
+                fillGrid(DIRECTION_UP, recycler);
             } else if (!topBoundReached) {
-                fillGrid(DIRECTION_NONE, recycler, state);
+                fillGrid(DIRECTION_NONE, recycler);
             }
         }
 

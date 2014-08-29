@@ -32,11 +32,17 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
      * need to start laying out the initial set of views. This method will not be called
      * repeatedly, so don't rely on it to continually process changes during user
      * interaction.
+     *
+     * This method will be called when the data set in the adapter changes, so it can be
+     * used to update a layout based on a new item count.
      */
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-        //We have nothing to show for an empty data set
-        if (getItemCount() == 0) return;
+        //We have nothing to show for an empty data set but clear any existing views
+        if (getItemCount() == 0) {
+            detachAndScrapAttachedViews(recycler);
+            return;
+        }
 
         //Make the grid as square as possible, column count is root of the data set
         mTotalColumnCount = (int) Math.round(Math.sqrt(getItemCount()));

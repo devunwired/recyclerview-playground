@@ -10,6 +10,7 @@
     <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
 
+    <string name="action_empty">Empty</string>
     <string name="action_small">Small Grid</string>
     <string name="action_medium">Medium Grid</string>
     <string name="action_large">Large Grid</string>

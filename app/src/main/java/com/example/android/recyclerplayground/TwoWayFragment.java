@@ -67,6 +67,9 @@ public class TwoWayFragment extends Fragment implements AdapterView.OnItemClickL
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_empty:
+                mAdapter.setItemCount(0);
+                return true;
             case R.id.action_small:
                 mAdapter.setItemCount(5);
                 return true;

@@ -138,6 +138,7 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
             mVisibleColumnCount = mTotalColumnCount;
         }
 
+
         mVisibleRowCount = (getVerticalSpace()/ mDecoratedChildHeight) + 1;
         if (getVerticalSpace() % mDecoratedChildHeight > 0) {
             mVisibleRowCount++;
@@ -316,6 +317,14 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         final View topView = getChildAt(0);
         //Take rightmost measurements from the top-right child
         final View bottomView = getChildAt(mVisibleColumnCount-1);
+
+        //Optimize the case where the entire data set is too small to scroll
+        int viewSpan = getDecoratedRight(bottomView) - getDecoratedLeft(topView);
+        if (viewSpan <= getHorizontalSpace()) {
+            //We cannot scroll in either direction
+            return 0;
+        }
+
         int delta;
         boolean leftBoundReached = getFirstVisibleColumn() == 0;
         boolean rightBoundReached = getLastVisibleColumn() >= getTotalColumnCount();
@@ -389,6 +398,14 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
         final View topView = getChildAt(0);
         //Take bottom measurements from the bottom-right child.
         final View bottomView = getChildAt(getChildCount()-1);
+
+        //Optimize the case where the entire data set is too small to scroll
+        int viewSpan = getDecoratedBottom(bottomView) - getDecoratedTop(topView);
+        if (viewSpan <= getVerticalSpace()) {
+            //We cannot scroll in either direction
+            return 0;
+        }
+
         int delta;
         int maxRowCount = getTotalRowCount();
         boolean topBoundReached = getFirstVisibleRow() == 0;

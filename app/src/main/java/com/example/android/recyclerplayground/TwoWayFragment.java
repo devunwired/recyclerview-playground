@@ -52,7 +52,7 @@ public class TwoWayFragment extends Fragment implements AdapterView.OnItemClickL
         mList.addItemDecoration(new InsetDecoration(getActivity()));
 
         mAdapter = new SimpleAdapter();
-        mAdapter.setItemCount(202);
+        mAdapter.setItemCount(5);
         mAdapter.setOnItemClickListener(this);
         mList.setAdapter(mAdapter);
 
@@ -68,13 +68,13 @@ public class TwoWayFragment extends Fragment implements AdapterView.OnItemClickL
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_small:
-                mAdapter.setItemCount(25);
+                mAdapter.setItemCount(5);
                 return true;
             case R.id.action_medium:
-                mAdapter.setItemCount(196);
+                mAdapter.setItemCount(25);
                 return true;
             case R.id.action_large:
-                mAdapter.setItemCount(400);
+                mAdapter.setItemCount(196);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

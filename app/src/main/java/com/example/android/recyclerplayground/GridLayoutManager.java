@@ -67,6 +67,10 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
              */
             mFirstVisiblePosition = 0;
             childLeft = childTop = 0;
+        } else if (getVisibleChildCount() > getItemCount()) {
+            //Data set is too small to scroll fully, just reset position
+            mFirstVisiblePosition = 0;
+            childLeft = childTop = 0;
         } else { //Adapter data set changes
             /*
              * Keep the existing initial position, and save off
@@ -78,20 +82,31 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
 
             /*
              * Adjust the visible position if out of bounds in the
-             * new layout.
+             * new layout. This occurs when the new item count in an adapter
+             * is much smaller than it was before, and you are scrolled to
+             * a location where no items would exist.
              */
-            int lastVisiblePosition = positionOfIndex(getChildCount() - 1);
+            int lastVisiblePosition = positionOfIndex(getVisibleChildCount() - 1);
             if (lastVisiblePosition >= getItemCount()) {
                 lastVisiblePosition = (getItemCount() - 1);
                 int lastColumn = mVisibleColumnCount - 1;
                 int lastRow = mVisibleRowCount - 1;
-                //TODO: Fix for tiny data sets
 
+                //Adjust to align the last position in the bottom-right
                 mFirstVisiblePosition = Math.max(
                         lastVisiblePosition - lastColumn - (lastRow * getTotalColumnCount()), 0);
 
                 childLeft = getHorizontalSpace() - (mDecoratedChildWidth * mVisibleColumnCount);
                 childTop = getVerticalSpace() - (mDecoratedChildHeight * mVisibleRowCount);
+
+                //Correct cases where shifting to the bottom-right overscrolls the top-left
+                // This happens on data sets too small to scroll in a direction.
+                if (getFirstVisibleRow() == 0) {
+                    childTop = Math.min(childTop, 0);
+                }
+                if (getFirstVisibleColumn() == 0) {
+                    childLeft = Math.min(childLeft, 0);
+                }
             }
         }
 
@@ -100,6 +115,34 @@ public class GridLayoutManager extends RecyclerView.LayoutManager {
 
         //Fill the grid for the initial layout of views
         fillGrid(DIRECTION_NONE, childLeft, childTop, recycler);
+    }
+
+    /*
+     * If this value is positive, the furthest bottom child is
+     * laid out past the bounds of the view (too far up).
+     */
+    private int getVerticalOvershoot() {
+        if (getChildCount() == 0) {
+            return 0;
+        }
+
+        final View child = getChildAt(getChildCount() - 1);
+        int childBottom = getDecoratedBottom(child);
+        return getVerticalSpace() - childBottom;
+    }
+
+    /*
+     * If this value is positive, the furthest right child is
+     * laid out past the bounds of the view (too far left).
+     */
+    private int getHorizontalOvershoot() {
+        if (getChildCount() == 0) {
+            return 0;
+        }
+
+        final View child = getChildAt(getChildCount() - 1);
+        int childRight = getDecoratedRight(child);
+        return getHorizontalSpace() - childRight;
     }
 
     @Override

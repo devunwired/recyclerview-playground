@@ -5,9 +5,9 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
-public class GridLayoutManager extends RecyclerView.LayoutManager {
+public class StaticGridLayoutManager extends RecyclerView.LayoutManager {
 
-    private static final String TAG = GridLayoutManager.class.getSimpleName();
+    private static final String TAG = StaticGridLayoutManager.class.getSimpleName();
 
     /* Fill Direction Constants */
     private static final int DIRECTION_NONE = -1;

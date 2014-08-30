@@ -9,6 +9,8 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
 
     private static final String TAG = FixedGridLayoutManager.class.getSimpleName();
 
+    private static final int DEFAULT_COUNT = 1;
+
     /* Fill Direction Constants */
     private static final int DIRECTION_NONE = -1;
     private static final int DIRECTION_START = 0;
@@ -22,10 +24,18 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     private int mDecoratedChildWidth;
     private int mDecoratedChildHeight;
     /* Number of columns that exist in the grid */
-    private int mTotalColumnCount;
+    private int mTotalColumnCount = DEFAULT_COUNT;
     /* Metrics for the visible window of our data */
     private int mVisibleColumnCount;
     private int mVisibleRowCount;
+
+    /*
+     * Externally set the number of columns this manager will use.
+     */
+    public void setTotalColumnCount(int count) {
+        mTotalColumnCount = count;
+        requestLayout();
+    }
 
     /*
      * This method is your initial call from the framework. You will receive it when you
@@ -43,9 +53,6 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
             detachAndScrapAttachedViews(recycler);
             return;
         }
-
-        //Make the grid as square as possible, column count is root of the data set
-        mTotalColumnCount = (int) Math.round(Math.sqrt(getItemCount()));
 
         //Scrap measure one child
         View scrap = recycler.getViewForPosition(0);

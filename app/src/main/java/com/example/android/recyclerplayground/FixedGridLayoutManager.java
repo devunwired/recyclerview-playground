@@ -1,5 +1,7 @@
 package com.example.android.recyclerplayground;
 
+import android.graphics.PointF;
+import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.SparseArray;
@@ -28,6 +30,8 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     /* Metrics for the visible window of our data */
     private int mVisibleColumnCount;
     private int mVisibleRowCount;
+    /* Flag to force current scroll offsets to be ignored on re-layout */
+    private boolean mForceClearOffsets;
 
     /*
      * Externally set the number of columns this manager will use.
@@ -90,8 +94,13 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
              * the current scrolled offset.
              */
             final View topChild = getChildAt(0);
-            childLeft = getDecoratedLeft(topChild);
-            childTop = getDecoratedTop(topChild);
+            if (mForceClearOffsets) {
+                childLeft = childTop = 0;
+                mForceClearOffsets = false;
+            } else {
+                childLeft = getDecoratedLeft(topChild);
+                childTop = getDecoratedTop(topChild);
+            }
 
             /*
              * Adjust the visible position if out of bounds in the
@@ -162,20 +171,6 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     public void onAdapterChanged(RecyclerView.Adapter oldAdapter, RecyclerView.Adapter newAdapter) {
         //Completely scrap the existing layout
         removeAllViews();
-    }
-
-    @Override
-    public void onItemsAdded(RecyclerView recyclerView, int positionStart, int itemCount) {
-        //TODO: Monitor adapter changes
-        Log.i(TAG, "OnItemsAdded");
-        super.onItemsAdded(recyclerView, positionStart, itemCount);
-    }
-
-    @Override
-    public void onItemsRemoved(RecyclerView recyclerView, int positionStart, int itemCount) {
-        //TODO: Monitor adapter changes
-        Log.i(TAG, "OnItemsRemoved");
-        super.onItemsRemoved(recyclerView, positionStart, itemCount);
     }
 
     /*
@@ -336,16 +331,64 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
+    /*
+     * You must override this method if you would like to support external calls
+     * to shift the view to a given adapter position. In our implementation, this
+     * is the same as doing a fresh layout with the given position as the top-left
+     * (or first visible), so we simply set that value and trigger onLayoutChildren()
+     */
     @Override
     public void scrollToPosition(int position) {
-        //TODO: Handle programmatic scrolling
-        super.scrollToPosition(position);
+        if (position >= getItemCount()) {
+            Log.e(TAG, "Cannot scroll to "+position+", item count is "+getItemCount());
+            return;
+        }
+
+        //Ignore current scroll offset, snap to top-left
+        mForceClearOffsets = true;
+        //Set requested position as first visible
+        mFirstVisiblePosition = position;
+        //Trigger a new view layout
+        requestLayout();
     }
 
+    /*
+     * You must override this method if you would like to support external calls
+     * to animate a change to a new adapter position. The framework provides a
+     * helper scroller implementation (LinearSmoothScroller), which we leverage
+     * to do the animation calculations.
+     */
     @Override
-    public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state, int position) {
-        //TODO: Handle programmatic scrolling
-        super.smoothScrollToPosition(recyclerView, state, position);
+    public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state, final int position) {
+        if (position >= getItemCount()) {
+            Log.e(TAG, "Cannot scroll to "+position+", item count is "+getItemCount());
+            return;
+        }
+
+        /*
+         * LinearSmoothScroller's default behavior is to scroll the contents until
+         * the child is fully visible. It will snap to the top-left or bottom-right
+         * of the parent depending on whether the direction of travel was positive
+         * or negative.
+         */
+        LinearSmoothScroller scroller = new LinearSmoothScroller(recyclerView.getContext()) {
+            /*
+             * LinearSmoothScroller, at a minimum, just need to know the vector
+             * (x/y distance) to travel in order to get from the current positioning
+             * to the target.
+             */
+            @Override
+            public PointF computeScrollVectorForPosition(int targetPosition) {
+                final int rowOffset = getGlobalRowOfPosition(targetPosition)
+                        - getGlobalRowOfPosition(mFirstVisiblePosition);
+                final int columnOffset = getGlobalColumnOfPosition(targetPosition)
+                        - getGlobalColumnOfPosition(mFirstVisiblePosition);
+
+                return new PointF(columnOffset * mDecoratedChildWidth, rowOffset * mDecoratedChildHeight);
+            }
+        };
+        scroller.setTargetPosition(position);
+        startSmoothScroll(scroller);
     }
 
     /*
@@ -553,6 +596,15 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /** Private Helpers and Metrics Accessors */
+
+    /* Return the overall column index of this position in the global layout */
+    private int getGlobalColumnOfPosition(int position) {
+        return position % getTotalColumnCount();
+    }
+    /* Return the overall row index of this position in the global layout */
+    private int getGlobalRowOfPosition(int position) {
+        return position / getTotalColumnCount();
+    }
 
     /*
      * Mapping between child view indices and adapter data

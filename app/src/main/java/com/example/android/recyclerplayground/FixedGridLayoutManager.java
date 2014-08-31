@@ -190,8 +190,8 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
         }
 
         //Allow minimum value for small data sets
-        if (mVisibleColumnCount > mTotalColumnCount) {
-            mVisibleColumnCount = mTotalColumnCount;
+        if (mVisibleColumnCount > getTotalColumnCount()) {
+            mVisibleColumnCount = getTotalColumnCount();
         }
 
 
@@ -592,6 +592,10 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private int getTotalColumnCount() {
+        if (getItemCount() < mTotalColumnCount) {
+            return getItemCount();
+        }
+
         return mTotalColumnCount;
     }
 

@@ -48,11 +48,13 @@ public class TwoWayFragment extends Fragment implements AdapterView.OnItemClickL
         View rootView = inflater.inflate(R.layout.fragment_twoway, container, false);
 
         mList = (RecyclerView) rootView.findViewById(R.id.section_list);
-        mList.setLayoutManager(new StaticGridLayoutManager());
+        FixedGridLayoutManager manager = new FixedGridLayoutManager();
+        manager.setTotalColumnCount(10);
+        mList.setLayoutManager(manager);
         mList.addItemDecoration(new InsetDecoration(getActivity()));
 
         mAdapter = new SimpleAdapter();
-        mAdapter.setItemCount(5);
+        mAdapter.setItemCount(1);
         mAdapter.setOnItemClickListener(this);
         mList.setAdapter(mAdapter);
 

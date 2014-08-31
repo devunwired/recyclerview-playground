@@ -1,4 +1,4 @@
-package com.example.android.recyclerplayground;
+package com.example.android.recyclerplayground.fragments;
 
 import android.app.Fragment;
 import android.os.Bundle;
@@ -11,6 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Toast;
+
+import com.example.android.recyclerplayground.R;
+import com.example.android.recyclerplayground.SimpleAdapter;
 
 public abstract class RecyclerFragment extends Fragment implements AdapterView.OnItemClickListener {
 

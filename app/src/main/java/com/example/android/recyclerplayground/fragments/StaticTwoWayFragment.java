@@ -1,13 +1,15 @@
-package com.example.android.recyclerplayground;
+package com.example.android.recyclerplayground.fragments;
 
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-public class HorizontalFragment extends RecyclerFragment {
+import com.example.android.recyclerplayground.InsetDecoration;
+import com.example.android.recyclerplayground.layout.StaticGridLayoutManager;
 
-    public static HorizontalFragment newInstance() {
-        HorizontalFragment fragment = new HorizontalFragment();
+public class StaticTwoWayFragment extends RecyclerFragment {
+
+    public static StaticTwoWayFragment newInstance() {
+        StaticTwoWayFragment fragment = new StaticTwoWayFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -15,7 +17,7 @@ public class HorizontalFragment extends RecyclerFragment {
 
     @Override
     protected RecyclerView.LayoutManager getLayoutManager() {
-        return new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        return new StaticGridLayoutManager();
     }
 
     @Override
@@ -25,6 +27,6 @@ public class HorizontalFragment extends RecyclerFragment {
 
     @Override
     protected int getDefaultItemCount() {
-        return 40;
+        return 5;
     }
 }

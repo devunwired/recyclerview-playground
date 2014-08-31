@@ -9,6 +9,12 @@ import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.android.recyclerplayground.fragments.FixedTwoWayFragment;
+import com.example.android.recyclerplayground.fragments.HorizontalFragment;
+import com.example.android.recyclerplayground.fragments.NavigationDrawerFragment;
+import com.example.android.recyclerplayground.fragments.StaticTwoWayFragment;
+import com.example.android.recyclerplayground.fragments.VerticalFragment;
+
 
 public class MainActivity extends Activity implements
         NavigationDrawerFragment.NavigationDrawerCallbacks {

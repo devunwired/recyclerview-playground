@@ -1,7 +1,10 @@
-package com.example.android.recyclerplayground;
+package com.example.android.recyclerplayground.fragments;
 
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+
+import com.example.android.recyclerplayground.layout.FixedGridLayoutManager;
+import com.example.android.recyclerplayground.InsetDecoration;
 
 
 public class FixedTwoWayFragment extends RecyclerFragment{

@@ -1,13 +1,15 @@
-package com.example.android.recyclerplayground;
+package com.example.android.recyclerplayground.fragments;
 
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-public class VerticalFragment extends RecyclerFragment {
+import com.example.android.recyclerplayground.InsetDecoration;
 
-    public static VerticalFragment newInstance() {
-        VerticalFragment fragment = new VerticalFragment();
+public class HorizontalFragment extends RecyclerFragment {
+
+    public static HorizontalFragment newInstance() {
+        HorizontalFragment fragment = new HorizontalFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -15,17 +17,16 @@ public class VerticalFragment extends RecyclerFragment {
 
     @Override
     protected RecyclerView.LayoutManager getLayoutManager() {
-        return new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+        return new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
     }
 
     @Override
     protected RecyclerView.ItemDecoration getItemDecoration() {
-        //We must draw dividers ourselves if we want them in a list
-        return new DividerDecoration(getActivity());
+        return new InsetDecoration(getActivity());
     }
 
     @Override
     protected int getDefaultItemCount() {
-        return 100;
+        return 40;
     }
 }

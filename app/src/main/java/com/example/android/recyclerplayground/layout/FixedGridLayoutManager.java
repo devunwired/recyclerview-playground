@@ -1,4 +1,4 @@
-package com.example.android.recyclerplayground;
+package com.example.android.recyclerplayground.layout;
 
 import android.graphics.PointF;
 import android.support.v7.widget.LinearSmoothScroller;
@@ -7,9 +7,27 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
-public class StaticGridLayoutManager extends RecyclerView.LayoutManager {
+/**
+ * A {@link android.support.v7.widget.RecyclerView.LayoutManager} implementation
+ * that places children in a 2D grid, sized to a fixed column count value.
+ * User scrolling is possible in both horizontal and vertical directions
+ * to view the data set.
+ *
+ * <p>The column count is controllable via {@link #setTotalColumnCount(int)}. The layout manager
+ * will generate the number of rows necessary to accommodate the data set based on
+ * the fixed column count.
+ *
+ * <p>This manager does make some assumptions to simplify the implementation:
+ * <ul>
+ *     <li>All child views are assumed to be the same size</li>
+ *     <li>The window of visible views is a constant</li>
+ * </ul>
+ */
+public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
 
-    private static final String TAG = StaticGridLayoutManager.class.getSimpleName();
+    private static final String TAG = FixedGridLayoutManager.class.getSimpleName();
+
+    private static final int DEFAULT_COUNT = 1;
 
     /* Fill Direction Constants */
     private static final int DIRECTION_NONE = -1;
@@ -24,12 +42,22 @@ public class StaticGridLayoutManager extends RecyclerView.LayoutManager {
     private int mDecoratedChildWidth;
     private int mDecoratedChildHeight;
     /* Number of columns that exist in the grid */
-    private int mTotalColumnCount;
+    private int mTotalColumnCount = DEFAULT_COUNT;
     /* Metrics for the visible window of our data */
     private int mVisibleColumnCount;
     private int mVisibleRowCount;
     /* Flag to force current scroll offsets to be ignored on re-layout */
     private boolean mForceClearOffsets;
+
+    /**
+     * Set the number of columns the layout manager will use. This will
+     * trigger a layout update.
+     * @param count Number of columns.
+     */
+    public void setTotalColumnCount(int count) {
+        mTotalColumnCount = count;
+        requestLayout();
+    }
 
     /*
      * This method is your initial call from the framework. You will receive it when you
@@ -47,9 +75,6 @@ public class StaticGridLayoutManager extends RecyclerView.LayoutManager {
             detachAndScrapAttachedViews(recycler);
             return;
         }
-
-        //Make the grid as square as possible, column count is root of the data set
-        mTotalColumnCount = (int) Math.round(Math.sqrt(getItemCount()));
 
         //Scrap measure one child
         View scrap = recycler.getViewForPosition(0);
@@ -637,6 +662,10 @@ public class StaticGridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private int getTotalColumnCount() {
+        if (getItemCount() < mTotalColumnCount) {
+            return getItemCount();
+        }
+
         return mTotalColumnCount;
     }
 

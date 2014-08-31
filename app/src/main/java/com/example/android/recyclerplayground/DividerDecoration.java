@@ -8,6 +8,12 @@ import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+/**
+ * ItemDecoration implementation that applies and inset margin
+ * around each child of the RecyclerView. It also draws item dividers
+ * that are expected from a vertical list implementation, such as
+ * ListView.
+ */
 public class DividerDecoration extends RecyclerView.ItemDecoration {
 
     private static final int[] ATTRS = { android.R.attr.listDivider };

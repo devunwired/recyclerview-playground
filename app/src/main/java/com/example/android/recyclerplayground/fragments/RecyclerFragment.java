@@ -35,7 +35,7 @@ public abstract class RecyclerFragment extends Fragment implements AdapterView.O
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_twoway, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_recycler, container, false);
 
         mList = (RecyclerView) rootView.findViewById(R.id.section_list);
         mList.setLayoutManager(getLayoutManager());
@@ -83,6 +83,8 @@ public abstract class RecyclerFragment extends Fragment implements AdapterView.O
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Toast.makeText(getActivity(), "Clicked: " + position + ", index " + mList.indexOfChild(view), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(),
+                "Clicked: " + position + ", index " + mList.indexOfChild(view),
+                Toast.LENGTH_SHORT).show();
     }
 }

@@ -17,4 +17,13 @@
         android:title="@string/action_large"
         android:orderInCategory="93"
         android:showAsAction="never" />
+
+    <item android:id="@+id/action_scroll_zero"
+        android:title="@string/action_scroll_zero"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+    <item android:id="@+id/action_smooth_zero"
+        android:title="@string/action_smooth_zero"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
 </menu>

@@ -15,5 +15,7 @@
     <string name="action_small">Small Grid</string>
     <string name="action_medium">Medium Grid</string>
     <string name="action_large">Large Grid</string>
+    <string name="action_scroll_zero">Scroll Home</string>
+    <string name="action_smooth_zero">Smooth Scroll Home</string>
 
 </resources>

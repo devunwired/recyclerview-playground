@@ -51,7 +51,10 @@ public class MainActivity extends Activity implements
                 ft.replace(R.id.container, HorizontalFragment.newInstance());
                 break;
             case 2:
-                ft.replace(R.id.container, TwoWayFragment.newInstance());
+                ft.replace(R.id.container, StaticTwoWayFragment.newInstance());
+                break;
+            case 3:
+                ft.replace(R.id.container, FixedTwoWayFragment.newInstance());
                 break;
             default:
                 //Do nothing
@@ -86,10 +89,6 @@ public class MainActivity extends Activity implements
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 

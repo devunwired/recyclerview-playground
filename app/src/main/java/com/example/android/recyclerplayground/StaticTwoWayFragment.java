@@ -17,7 +17,7 @@ import android.widget.Toast;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class TwoWayFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class StaticTwoWayFragment extends Fragment implements AdapterView.OnItemClickListener {
 
     RecyclerView mList;
     SimpleAdapter mAdapter;
@@ -26,14 +26,14 @@ public class TwoWayFragment extends Fragment implements AdapterView.OnItemClickL
      * Returns a new instance of this fragment for the given section
      * number.
      */
-    public static TwoWayFragment newInstance() {
-        TwoWayFragment fragment = new TwoWayFragment();
+    public static StaticTwoWayFragment newInstance() {
+        StaticTwoWayFragment fragment = new StaticTwoWayFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
     }
 
-    public TwoWayFragment() {
+    public StaticTwoWayFragment() {
     }
 
     @Override

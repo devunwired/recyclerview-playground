@@ -4,7 +4,8 @@
     <string name="app_name">RecyclerPlayground</string>
     <string name="title_section1">Vertical List</string>
     <string name="title_section2">Horizontal List</string>
-    <string name="title_section3">Two-Way List</string>
+    <string name="title_section3">Static Two-Way List</string>
+    <string name="title_section4">Fixed Two-Way List</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>

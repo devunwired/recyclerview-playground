@@ -157,34 +157,6 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
         fillGrid(DIRECTION_NONE, childLeft, childTop, recycler);
     }
 
-    /*
-     * If this value is positive, the furthest bottom child is
-     * laid out past the bounds of the view (too far up).
-     */
-    private int getVerticalOvershoot() {
-        if (getChildCount() == 0) {
-            return 0;
-        }
-
-        final View child = getChildAt(getChildCount() - 1);
-        int childBottom = getDecoratedBottom(child);
-        return getVerticalSpace() - childBottom;
-    }
-
-    /*
-     * If this value is positive, the furthest right child is
-     * laid out past the bounds of the view (too far left).
-     */
-    private int getHorizontalOvershoot() {
-        if (getChildCount() == 0) {
-            return 0;
-        }
-
-        final View child = getChildAt(getChildCount() - 1);
-        int childRight = getDecoratedRight(child);
-        return getHorizontalSpace() - childRight;
-    }
-
     @Override
     public void onAdapterChanged(RecyclerView.Adapter oldAdapter, RecyclerView.Adapter newAdapter) {
         //Completely scrap the existing layout
@@ -487,7 +459,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
          * match original delta (passed in), RecyclerView will draw
          * an edge effect.
          */
-        return (Math.abs(delta) != Math.abs(dx)) ? Math.abs(delta) : dx;
+        return -delta;
     }
 
     /*
@@ -584,7 +556,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
          * match original delta (passed in), RecyclerView will draw
          * an edge effect.
          */
-        return (Math.abs(delta) != Math.abs(dy)) ? Math.abs(delta) : dy;
+        return -delta;
     }
 
     /*

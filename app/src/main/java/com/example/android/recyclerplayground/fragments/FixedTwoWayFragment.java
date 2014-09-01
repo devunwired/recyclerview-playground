@@ -3,8 +3,8 @@ package com.example.android.recyclerplayground.fragments;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 
+import com.example.android.recyclerplayground.GridDividerDecoration;
 import com.example.android.recyclerplayground.layout.FixedGridLayoutManager;
-import com.example.android.recyclerplayground.InsetDecoration;
 
 
 public class FixedTwoWayFragment extends RecyclerFragment{
@@ -26,7 +26,7 @@ public class FixedTwoWayFragment extends RecyclerFragment{
 
     @Override
     protected RecyclerView.ItemDecoration getItemDecoration() {
-        return new InsetDecoration(getActivity());
+        return new GridDividerDecoration(getActivity());
     }
 
     @Override

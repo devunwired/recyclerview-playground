@@ -9,9 +9,9 @@ import android.view.View;
 
 /**
  * A {@link android.support.v7.widget.RecyclerView.LayoutManager} implementation
- * that places children in a 2D grid, sized to make the data appear as square as
- * possible. User scrolling is possible in both horizontal and vertical directions
- * to view the data set.
+ * that places children in a two-dimensional grid, sized to make the data appear
+ * as square as possible. User scrolling is possible in both horizontal and vertical
+ * directions to view the data set.
  *
  * <p>On {@link android.support.v7.widget.RecyclerView.Adapter} data set changes,
  * the view configures the number of columns used based on the square root

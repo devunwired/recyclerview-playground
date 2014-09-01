@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/action_add"
+        android:title="Add"
+        android:showAsAction="always" />
+    <item android:id="@+id/action_remove"
+        android:title="Remove"
+        android:showAsAction="always" />
+
     <item android:id="@+id/action_empty"
         android:title="@string/action_empty"
         android:orderInCategory="90"

@@ -13,7 +13,7 @@ import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.example.android.recyclerplayground.R;
-import com.example.android.recyclerplayground.SimpleAdapter;
+import com.example.android.recyclerplayground.adapters.SimpleAdapter;
 
 public abstract class RecyclerFragment extends Fragment implements AdapterView.OnItemClickListener {
 
@@ -44,7 +44,6 @@ public abstract class RecyclerFragment extends Fragment implements AdapterView.O
         mAdapter = new SimpleAdapter();
         mAdapter.setItemCount(getDefaultItemCount());
         mAdapter.setOnItemClickListener(this);
-
         mList.setAdapter(mAdapter);
 
         return rootView;
@@ -58,6 +57,12 @@ public abstract class RecyclerFragment extends Fragment implements AdapterView.O
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_add:
+                mAdapter.addItem();
+                return true;
+            case R.id.action_remove:
+                mAdapter.removeItem();
+                return true;
             case R.id.action_empty:
                 mAdapter.setItemCount(0);
                 return true;

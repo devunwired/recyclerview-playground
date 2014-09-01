@@ -9,8 +9,8 @@ import android.view.View;
 
 /**
  * A {@link android.support.v7.widget.RecyclerView.LayoutManager} implementation
- * that places children in a 2D grid, sized to a fixed column count value.
- * User scrolling is possible in both horizontal and vertical directions
+ * that places children in a two-dimensional grid, sized to a fixed column count
+ * value. User scrolling is possible in both horizontal and vertical directions
  * to view the data set.
  *
  * <p>The column count is controllable via {@link #setTotalColumnCount(int)}. The layout manager

@@ -1,4 +1,4 @@
-package com.example.android.recyclerplayground;
+package com.example.android.recyclerplayground.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.TextView;
+
+import com.example.android.recyclerplayground.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +22,39 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
         mItems = new ArrayList<GameItem>();
     }
 
+    /*
+     * A common adapter modification or reset mechanism. As with ListAdapter,
+     * calling notifyDataSetChanged() will trigger the RecyclerView to update
+     * the view. However, this method will not trigger any of the RecyclerView
+     * animation features.
+     */
     public void setItemCount(int count) {
         mItems.clear();
         mItems.addAll(generateDummyData(count));
 
         notifyDataSetChanged();
+    }
+
+    /*
+     * Inserting a new item at the head of the list. This uses a specialized
+     * RecyclerView method, notifyItemInserted(), to trigger any enabled item
+     * animations in addition to updating the view.
+     */
+    public void addItem() {
+        mItems.add(0, generateDummyItem());
+        notifyItemInserted(0);
+    }
+
+    /*
+     * Inserting a new item at the head of the list. This uses a specialized
+     * RecyclerView method, notifyItemRemoved(), to trigger any enabled item
+     * animations in addition to updating the view.
+     */
+    public void removeItem() {
+        if (mItems.isEmpty()) return;
+
+        mItems.remove(0);
+        notifyItemRemoved(0);
     }
 
     @Override
@@ -114,6 +144,10 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
         public void setAwayName(CharSequence awayName) {
             mAwayName.setText(awayName);
         }
+    }
+
+    public static GameItem generateDummyItem() {
+        return new GameItem("Upset Home Team", "Upset Away Team", 0, 0);
     }
 
     public static List<SimpleAdapter.GameItem> generateDummyData(int count) {

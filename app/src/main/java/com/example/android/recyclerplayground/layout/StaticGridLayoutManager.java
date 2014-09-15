@@ -68,22 +68,25 @@ public class StaticGridLayoutManager extends RecyclerView.LayoutManager {
         //Make the grid as square as possible, column count is root of the data set
         mTotalColumnCount = (int) Math.round(Math.sqrt(getItemCount()));
 
-        //Scrap measure one child
-        View scrap = recycler.getViewForPosition(0);
-        addView(scrap);
-        measureChildWithMargins(scrap, 0, 0);
+        if (getChildCount() == 0) { //First or empty layout
+            //Scrap measure one child
+            View scrap = recycler.getViewForPosition(0);
+            addView(scrap);
+            measureChildWithMargins(scrap, 0, 0);
 
-        /*
-         * We make some assumptions in this code based on every child
-         * view being the same size (i.e. a uniform grid). This allows
-         * us to compute the following values up front because they
-         * won't change.
-         */
-        mDecoratedChildWidth = getDecoratedMeasuredWidth(scrap);
-        mDecoratedChildHeight = getDecoratedMeasuredHeight(scrap);
+            /*
+             * We make some assumptions in this code based on every child
+             * view being the same size (i.e. a uniform grid). This allows
+             * us to compute the following values up front because they
+             * won't change.
+             */
+            mDecoratedChildWidth = getDecoratedMeasuredWidth(scrap);
+            mDecoratedChildHeight = getDecoratedMeasuredHeight(scrap);
 
-        detachAndScrapView(scrap, recycler);
+            detachAndScrapView(scrap, recycler);
+        }
 
+        //Always update the visible row/column counts
         updateWindowSizing();
 
         int childLeft;

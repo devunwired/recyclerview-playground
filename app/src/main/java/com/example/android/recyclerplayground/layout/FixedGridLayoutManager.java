@@ -76,22 +76,25 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
             return;
         }
 
-        //Scrap measure one child
-        View scrap = recycler.getViewForPosition(0);
-        addView(scrap);
-        measureChildWithMargins(scrap, 0, 0);
+        if (getChildCount() == 0) { //First or empty layout
+            //Scrap measure one child
+            View scrap = recycler.getViewForPosition(0);
+            addView(scrap);
+            measureChildWithMargins(scrap, 0, 0);
 
-        /*
-         * We make some assumptions in this code based on every child
-         * view being the same size (i.e. a uniform grid). This allows
-         * us to compute the following values up front because they
-         * won't change.
-         */
-        mDecoratedChildWidth = getDecoratedMeasuredWidth(scrap);
-        mDecoratedChildHeight = getDecoratedMeasuredHeight(scrap);
+            /*
+             * We make some assumptions in this code based on every child
+             * view being the same size (i.e. a uniform grid). This allows
+             * us to compute the following values up front because they
+             * won't change.
+             */
+            mDecoratedChildWidth = getDecoratedMeasuredWidth(scrap);
+            mDecoratedChildHeight = getDecoratedMeasuredHeight(scrap);
 
-        detachAndScrapView(scrap, recycler);
+            detachAndScrapView(scrap, recycler);
+        }
 
+        //Always update the visible row/column counts
         updateWindowSizing();
 
         int childLeft;
@@ -156,6 +159,11 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
         //Fill the grid for the initial layout of views
         fillGrid(DIRECTION_NONE, childLeft, childTop, recycler);
     }
+
+//    @Override
+//    public boolean supportsPredictiveItemAnimations() {
+//        return true;
+//    }
 
     @Override
     public void onAdapterChanged(RecyclerView.Adapter oldAdapter, RecyclerView.Adapter newAdapter) {

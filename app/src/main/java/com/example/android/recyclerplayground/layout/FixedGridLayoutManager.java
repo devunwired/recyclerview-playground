@@ -160,11 +160,6 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
         fillGrid(DIRECTION_NONE, childLeft, childTop, recycler);
     }
 
-//    @Override
-//    public boolean supportsPredictiveItemAnimations() {
-//        return true;
-//    }
-
     @Override
     public void onAdapterChanged(RecyclerView.Adapter oldAdapter, RecyclerView.Adapter newAdapter) {
         //Completely scrap the existing layout

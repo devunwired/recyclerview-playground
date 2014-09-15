@@ -11,6 +11,7 @@ import com.example.android.recyclerplayground.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalItemHolder> {
 
@@ -41,8 +42,8 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
      * animations in addition to updating the view.
      */
     public void addItem() {
-        mItems.add(0, generateDummyItem());
-        notifyItemInserted(0);
+        mItems.add(1, generateDummyItem());
+        notifyItemInserted(1);
     }
 
     /*
@@ -147,7 +148,10 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
     }
 
     public static GameItem generateDummyItem() {
-        return new GameItem("Upset Home Team", "Upset Away Team", 0, 0);
+        Random random = new Random();
+        return new GameItem("Upset Home", "Upset Away",
+                random.nextInt(100),
+                random.nextInt(100) );
     }
 
     public static List<SimpleAdapter.GameItem> generateDummyData(int count) {

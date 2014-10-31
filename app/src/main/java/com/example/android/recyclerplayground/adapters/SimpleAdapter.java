@@ -59,7 +59,7 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
     }
 
     @Override
-    public VerticalItemHolder onCreateViewHolder(ViewGroup container, int position) {
+    public VerticalItemHolder onCreateViewHolder(ViewGroup container, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(container.getContext());
         View root = inflater.inflate(R.layout.view_match_item, container, false);
 

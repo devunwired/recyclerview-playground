@@ -129,15 +129,24 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
              * is much smaller than it was before, and you are scrolled to
              * a location where no items would exist.
              */
-            int lastVisiblePosition = positionOfIndex(getVisibleChildCount() - 1);
-            if (lastVisiblePosition >= getItemCount()) {
-                lastVisiblePosition = (getItemCount() - 1);
-                int lastColumn = mVisibleColumnCount - 1;
-                int lastRow = mVisibleRowCount - 1;
-
-                //Adjust to align the last position in the bottom-right
-                mFirstVisiblePosition = Math.max(
-                        lastVisiblePosition - lastColumn - (lastRow * getTotalColumnCount()), 0);
+            int maxFirstRow = getTotalRowCount() - (mVisibleRowCount-1);
+            int maxFirstCol = getTotalColumnCount() - (mVisibleColumnCount-1);
+            boolean isOutOfRowBounds = getFirstVisibleRow() > maxFirstRow;
+            boolean isOutOfColBounds =  getFirstVisibleColumn() > maxFirstCol;
+            if (isOutOfRowBounds || isOutOfColBounds) {
+                int firstRow;
+                if (isOutOfRowBounds) {
+                    firstRow = maxFirstRow;
+                } else {
+                    firstRow = getFirstVisibleRow();
+                }
+                int firstCol;
+                if (isOutOfColBounds) {
+                    firstCol = maxFirstCol;
+                } else {
+                    firstCol = getFirstVisibleColumn();
+                }
+                mFirstVisiblePosition = firstRow * getTotalColumnCount() + firstCol;
 
                 childLeft = getHorizontalSpace() - (mDecoratedChildWidth * mVisibleColumnCount);
                 childTop = getVerticalSpace() - (mDecoratedChildHeight * mVisibleRowCount);
@@ -412,7 +421,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
 
         //Optimize the case where the entire data set is too small to scroll
         int viewSpan = getDecoratedRight(bottomView) - getDecoratedLeft(topView);
-        if (viewSpan <= getHorizontalSpace()) {
+        if (viewSpan < getHorizontalSpace()) {
             //We cannot scroll in either direction
             return 0;
         }
@@ -493,7 +502,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
 
         //Optimize the case where the entire data set is too small to scroll
         int viewSpan = getDecoratedBottom(bottomView) - getDecoratedTop(topView);
-        if (viewSpan <= getVerticalSpace()) {
+        if (viewSpan < getVerticalSpace()) {
             //We cannot scroll in either direction
             return 0;
         }
@@ -645,6 +654,9 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private int getTotalRowCount() {
+        if (getItemCount() == 0 || mTotalColumnCount == 0) {
+            return 0;
+        }
         int maxRow = getItemCount() / mTotalColumnCount;
         //Bump the row count if it's not exactly even
         if (getItemCount() % mTotalColumnCount != 0) {

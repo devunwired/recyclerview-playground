@@ -11,7 +11,7 @@ import android.support.v7.widget.RecyclerView;
  */
 public class InsetDecoration extends RecyclerView.ItemDecoration {
 
-    private int mInsets;
+    private final int mInsets;
 
     public InsetDecoration(Context context) {
         mInsets = context.getResources().getDimensionPixelSize(R.dimen.card_insets);

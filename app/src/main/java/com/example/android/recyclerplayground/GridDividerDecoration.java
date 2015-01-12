@@ -16,10 +16,10 @@ import android.view.View;
  */
 public class GridDividerDecoration extends RecyclerView.ItemDecoration {
 
-    private static final int[] ATTRS = { android.R.attr.listDivider };
+    private static final int[] ATTRS = {android.R.attr.listDivider};
 
-    private Drawable mDivider;
-    private int mInsets;
+    private final Drawable mDivider;
+    private final int mInsets;
 
     public GridDividerDecoration(Context context) {
         TypedArray a = context.obtainStyledAttributes(ATTRS);
@@ -35,15 +35,21 @@ public class GridDividerDecoration extends RecyclerView.ItemDecoration {
         drawHorizontal(c, parent);
     }
 
-    /** Draw dividers at each expected grid interval */
-    public void drawVertical(Canvas c, RecyclerView parent) {
-        if (parent.getChildCount() == 0) return;
+    /**
+     * Draw dividers at each expected grid interval
+     */
+    void drawVertical(Canvas c, RecyclerView parent) {
+        if (parent.getChildCount() == 0) {
+            return;
+        }
 
         final int left = parent.getPaddingLeft();
         final int right = parent.getWidth() - parent.getPaddingRight();
 
         final View child = parent.getChildAt(0);
-        if (child.getHeight() == 0) return;
+        if (child.getHeight() == 0) {
+            return;
+        }
 
         final RecyclerView.LayoutParams params =
                 (RecyclerView.LayoutParams) child.getLayoutParams();
@@ -60,8 +66,10 @@ public class GridDividerDecoration extends RecyclerView.ItemDecoration {
         }
     }
 
-    /** Draw dividers to the right of each child view */
-    public void drawHorizontal(Canvas c, RecyclerView parent) {
+    /**
+     * Draw dividers to the right of each child view
+     */
+    void drawHorizontal(Canvas c, RecyclerView parent) {
         final int top = parent.getPaddingTop();
         final int bottom = parent.getHeight() - parent.getPaddingBottom();
 

@@ -74,7 +74,7 @@ public class MainActivity extends ActionBarActivity implements
         ft.commit();
     }
 
-    public void restoreActionBar() {
+    void restoreActionBar() {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);

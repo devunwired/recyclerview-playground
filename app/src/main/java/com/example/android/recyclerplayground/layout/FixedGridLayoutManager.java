@@ -12,15 +12,15 @@ import android.view.View;
  * that places children in a two-dimensional grid, sized to a fixed column count
  * value. User scrolling is possible in both horizontal and vertical directions
  * to view the data set.
- *
+ * <p/>
  * <p>The column count is controllable via {@link #setTotalColumnCount(int)}. The layout manager
  * will generate the number of rows necessary to accommodate the data set based on
  * the fixed column count.
- *
+ * <p/>
  * <p>This manager does make some assumptions to simplify the implementation:
  * <ul>
- *     <li>All child views are assumed to be the same size</li>
- *     <li>The window of visible views is a constant</li>
+ * <li>All child views are assumed to be the same size</li>
+ * <li>The window of visible views is a constant</li>
  * </ul>
  */
 public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
@@ -52,6 +52,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     /**
      * Set the number of columns the layout manager will use. This will
      * trigger a layout update.
+     *
      * @param count Number of columns.
      */
     public void setTotalColumnCount(int count) {
@@ -183,7 +184,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
         }
 
 
-        mVisibleRowCount = (getVerticalSpace()/ mDecoratedChildHeight) + 1;
+        mVisibleRowCount = (getVerticalSpace() / mDecoratedChildHeight) + 1;
         if (getVerticalSpace() % mDecoratedChildHeight > 0) {
             mVisibleRowCount++;
         }
@@ -198,15 +199,19 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private void fillGrid(int direction, int emptyLeft, int emptyTop, RecyclerView.Recycler recycler) {
-        if (mFirstVisiblePosition < 0) mFirstVisiblePosition = 0;
-        if (mFirstVisiblePosition >= getItemCount()) mFirstVisiblePosition = (getItemCount() - 1);
+        if (mFirstVisiblePosition < 0) {
+            mFirstVisiblePosition = 0;
+        }
+        if (mFirstVisiblePosition >= getItemCount()) {
+            mFirstVisiblePosition = (getItemCount() - 1);
+        }
 
         /*
          * First, we will detach all existing views from the layout.
          * detachView() is a lightweight operation that we can use to
          * quickly reorder views without a full add/remove.
          */
-        SparseArray<View> viewCache = new SparseArray<View>(getChildCount());
+        SparseArray<View> viewCache = new SparseArray<>(getChildCount());
         int startLeftOffset = getPaddingLeft() + emptyLeft;
         int startTopOffset = getPaddingTop() + emptyTop;
         if (getChildCount() != 0) {
@@ -229,7 +234,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
             }
 
             //Cache all views by their existing position, before updating counts
-            for (int i=0; i < getChildCount(); i++) {
+            for (int i = 0; i < getChildCount(); i++) {
                 int position = positionOfIndex(i);
                 final View child = getChildAt(i);
                 viewCache.put(position, child);
@@ -237,7 +242,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
 
             //Temporarily detach all views.
             // Views we still need will be added back at the proper index.
-            for (int i=0; i < viewCache.size(); i++) {
+            for (int i = 0; i < viewCache.size(); i++) {
                 detachView(viewCache.valueAt(i));
             }
         }
@@ -319,7 +324,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
          * that we did not re-attach. These are views that are not currently
          * necessary because they are no longer visible.
          */
-        for (int i=0; i < viewCache.size(); i++) {
+        for (int i = 0; i < viewCache.size(); i++) {
             recycler.recycleView(viewCache.valueAt(i));
         }
     }
@@ -333,7 +338,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void scrollToPosition(int position) {
         if (position >= getItemCount()) {
-            Log.e(TAG, "Cannot scroll to "+position+", item count is "+getItemCount());
+            Log.e(TAG, "Cannot scroll to " + position + ", item count is " + getItemCount());
             return;
         }
 
@@ -354,7 +359,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state, final int position) {
         if (position >= getItemCount()) {
-            Log.e(TAG, "Cannot scroll to "+position+", item count is "+getItemCount());
+            Log.e(TAG, "Cannot scroll to " + position + ", item count is " + getItemCount());
             return;
         }
 
@@ -408,7 +413,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
         //Take leftmost measurements from the top-left child
         final View topView = getChildAt(0);
         //Take rightmost measurements from the top-right child
-        final View bottomView = getChildAt(mVisibleColumnCount-1);
+        final View bottomView = getChildAt(mVisibleColumnCount - 1);
 
         //Optimize the case where the entire data set is too small to scroll
         int viewSpan = getDecoratedRight(bottomView) - getDecoratedLeft(topView);
@@ -489,7 +494,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
         //Take top measurements from the top-left child
         final View topView = getChildAt(0);
         //Take bottom measurements from the bottom-right child.
-        final View bottomView = getChildAt(getChildCount()-1);
+        final View bottomView = getChildAt(getChildCount() - 1);
 
         //Optimize the case where the entire data set is too small to scroll
         int viewSpan = getDecoratedBottom(bottomView) - getDecoratedTop(topView);
@@ -579,7 +584,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
      */
     @Override
     public View findViewByPosition(int position) {
-        for (int i=0; i < getChildCount(); i++) {
+        for (int i = 0; i < getChildCount(); i++) {
             if (positionOfIndex(i) == position) {
                 return getChildAt(i);
             }
@@ -588,12 +593,15 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
         return null;
     }
 
-    /** Private Helpers and Metrics Accessors */
+    /**
+     * Private Helpers and Metrics Accessors
+     */
 
     /* Return the overall column index of this position in the global layout */
     private int getGlobalColumnOfPosition(int position) {
         return position % getTotalColumnCount();
     }
+
     /* Return the overall row index of this position in the global layout */
     private int getGlobalRowOfPosition(int position) {
         return position / getTotalColumnCount();

@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -18,6 +19,10 @@ import com.example.android.recyclerplayground.fragments.VerticalFragment;
 
 public class MainActivity extends ActionBarActivity implements
         NavigationDrawerFragment.NavigationDrawerCallbacks {
+
+    // Navigation drawer
+    private DrawerLayout mDrawerLayout;
+
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -39,9 +44,8 @@ public class MainActivity extends ActionBarActivity implements
         mTitle = getTitle();
 
         // Set up the drawer.
-        mNavigationDrawerFragment.setUp(
-                R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mNavigationDrawerFragment.setUp(R.id.navigation_drawer, mDrawerLayout);
     }
 
     @Override
@@ -98,4 +102,30 @@ public class MainActivity extends ActionBarActivity implements
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onBackPressed() {
+        if (isNavDrawerOpen()) {
+            closeNavDrawer();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    /**
+     * Close the nav drawer if it is open.
+     */
+    private void closeNavDrawer() {
+        if (mDrawerLayout != null) {
+            mDrawerLayout.closeDrawer(Gravity.START);
+        }
+    }
+
+    /**
+     * Determine if the nav drawer is currently open.
+     *
+     * @return is open or not
+     */
+    private boolean isNavDrawerOpen() {
+        return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(Gravity.START);
+    }
 }

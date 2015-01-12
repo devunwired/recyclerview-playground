@@ -18,8 +18,8 @@ public class DividerDecoration extends RecyclerView.ItemDecoration {
 
     private static final int[] ATTRS = { android.R.attr.listDivider };
 
-    private Drawable mDivider;
-    private int mInsets;
+    private final Drawable mDivider;
+    private final int mInsets;
 
     public DividerDecoration(Context context) {
         TypedArray a = context.obtainStyledAttributes(ATTRS);
@@ -35,7 +35,7 @@ public class DividerDecoration extends RecyclerView.ItemDecoration {
     }
 
     /** Draw dividers underneath each child view */
-    public void drawVertical(Canvas c, RecyclerView parent) {
+    void drawVertical(Canvas c, RecyclerView parent) {
         final int left = parent.getPaddingLeft();
         final int right = parent.getWidth() - parent.getPaddingRight();
 

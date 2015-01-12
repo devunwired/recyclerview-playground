@@ -17,5 +17,7 @@
     <string name="action_large">Large Grid</string>
     <string name="action_scroll_zero">Scroll Home</string>
     <string name="action_smooth_zero">Smooth Scroll Home</string>
+    <string name="action_add">Add</string>
+    <string name="action_remove">Remove</string>
 
 </resources>

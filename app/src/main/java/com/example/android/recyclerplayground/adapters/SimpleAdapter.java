@@ -15,7 +15,7 @@ import java.util.Random;
 
 public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalItemHolder> {
 
-    private ArrayList<GameItem> mItems;
+    private final List<GameItem> mItems;
 
     private AdapterView.OnItemClickListener mOnItemClickListener;
 
@@ -52,7 +52,9 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
      * animations in addition to updating the view.
      */
     public void removeItem() {
-        if (mItems.isEmpty()) return;
+        if (mItems.isEmpty()) {
+            return;
+        }
 
         mItems.remove(0);
         notifyItemRemoved(0);
@@ -94,10 +96,10 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
     }
 
     public static class GameItem {
-        public String homeTeam;
-        public String awayTeam;
-        public int homeScore;
-        public int awayScore;
+        public final String homeTeam;
+        public final String awayTeam;
+        public final int homeScore;
+        public final int awayScore;
 
         public GameItem(String homeTeam, String awayTeam, int homeScore, int awayScore) {
             this.homeTeam = homeTeam;
@@ -107,11 +109,30 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
         }
     }
 
-    public static class VerticalItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private TextView mHomeScore, mAwayScore;
-        private TextView mHomeName, mAwayName;
+    private static GameItem generateDummyItem() {
+        Random random = new Random();
+        return new GameItem("Upset Home", "Upset Away",
+                random.nextInt(100),
+                random.nextInt(100));
+    }
 
-        private SimpleAdapter mAdapter;
+    private static List<SimpleAdapter.GameItem> generateDummyData(int count) {
+        ArrayList<SimpleAdapter.GameItem> items = new ArrayList<SimpleAdapter.GameItem>();
+
+        for (int i = 0; i < count; i++) {
+            items.add(new SimpleAdapter.GameItem("Losers", "Winners", i, i + 5));
+        }
+
+        return items;
+    }
+
+    public static class VerticalItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private final TextView mHomeScore;
+        private final TextView mAwayScore;
+        private final TextView mHomeName;
+        private final TextView mAwayName;
+
+        private final SimpleAdapter mAdapter;
 
         public VerticalItemHolder(View itemView, SimpleAdapter adapter) {
             super(itemView);
@@ -147,20 +168,4 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
         }
     }
 
-    public static GameItem generateDummyItem() {
-        Random random = new Random();
-        return new GameItem("Upset Home", "Upset Away",
-                random.nextInt(100),
-                random.nextInt(100) );
-    }
-
-    public static List<SimpleAdapter.GameItem> generateDummyData(int count) {
-        ArrayList<SimpleAdapter.GameItem> items = new ArrayList<SimpleAdapter.GameItem>();
-
-        for (int i=0; i < count; i++) {
-            items.add(new SimpleAdapter.GameItem("Losers", "Winners", i, i+5));
-        }
-
-        return items;
-    }
 }

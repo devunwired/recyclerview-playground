@@ -12,16 +12,16 @@ import android.view.View;
  * that places children in a two-dimensional grid, sized to make the data appear
  * as square as possible. User scrolling is possible in both horizontal and vertical
  * directions to view the data set.
- *
+ * <p/>
  * <p>On {@link android.support.v7.widget.RecyclerView.Adapter} data set changes,
  * the view configures the number of columns used based on the square root
  * of the item count. As data sets get larger, they will use both more columns and
  * more rows in the view collection.
- *
+ * <p/>
  * <p>This manager does make some assumptions to simplify the implementation:
  * <ul>
- *     <li>All child views are assumed to be the same size</li>
- *     <li>The window of visible views is a constant</li>
+ * <li>All child views are assumed to be the same size</li>
+ * <li>The window of visible views is a constant</li>
  * </ul>
  */
 public class StaticGridLayoutManager extends RecyclerView.LayoutManager {
@@ -175,7 +175,7 @@ public class StaticGridLayoutManager extends RecyclerView.LayoutManager {
         }
 
 
-        mVisibleRowCount = (getVerticalSpace()/ mDecoratedChildHeight) + 1;
+        mVisibleRowCount = (getVerticalSpace() / mDecoratedChildHeight) + 1;
         if (getVerticalSpace() % mDecoratedChildHeight > 0) {
             mVisibleRowCount++;
         }
@@ -190,15 +190,19 @@ public class StaticGridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private void fillGrid(int direction, int emptyLeft, int emptyTop, RecyclerView.Recycler recycler) {
-        if (mFirstVisiblePosition < 0) mFirstVisiblePosition = 0;
-        if (mFirstVisiblePosition >= getItemCount()) mFirstVisiblePosition = (getItemCount() - 1);
+        if (mFirstVisiblePosition < 0) {
+            mFirstVisiblePosition = 0;
+        }
+        if (mFirstVisiblePosition >= getItemCount()) {
+            mFirstVisiblePosition = (getItemCount() - 1);
+        }
 
         /*
          * First, we will detach all existing views from the layout.
          * detachView() is a lightweight operation that we can use to
          * quickly reorder views without a full add/remove.
          */
-        SparseArray<View> viewCache = new SparseArray<View>(getChildCount());
+        SparseArray<View> viewCache = new SparseArray<>(getChildCount());
         int startLeftOffset = getPaddingLeft() + emptyLeft;
         int startTopOffset = getPaddingTop() + emptyTop;
         if (getChildCount() != 0) {
@@ -221,7 +225,7 @@ public class StaticGridLayoutManager extends RecyclerView.LayoutManager {
             }
 
             //Cache all views by their existing position, before updating counts
-            for (int i=0; i < getChildCount(); i++) {
+            for (int i = 0; i < getChildCount(); i++) {
                 int position = positionOfIndex(i);
                 final View child = getChildAt(i);
                 viewCache.put(position, child);
@@ -229,7 +233,7 @@ public class StaticGridLayoutManager extends RecyclerView.LayoutManager {
 
             //Temporarily detach all views.
             // Views we still need will be added back at the proper index.
-            for (int i=0; i < viewCache.size(); i++) {
+            for (int i = 0; i < viewCache.size(); i++) {
                 detachView(viewCache.valueAt(i));
             }
         }
@@ -311,7 +315,7 @@ public class StaticGridLayoutManager extends RecyclerView.LayoutManager {
          * that we did not re-attach. These are views that are not currently
          * necessary because they are no longer visible.
          */
-        for (int i=0; i < viewCache.size(); i++) {
+        for (int i = 0; i < viewCache.size(); i++) {
             recycler.recycleView(viewCache.valueAt(i));
         }
     }
@@ -325,7 +329,7 @@ public class StaticGridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void scrollToPosition(int position) {
         if (position >= getItemCount()) {
-            Log.e(TAG, "Cannot scroll to "+position+", item count is "+getItemCount());
+            Log.e(TAG, "Cannot scroll to " + position + ", item count is " + getItemCount());
             return;
         }
 
@@ -346,7 +350,7 @@ public class StaticGridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state, final int position) {
         if (position >= getItemCount()) {
-            Log.e(TAG, "Cannot scroll to "+position+", item count is "+getItemCount());
+            Log.e(TAG, "Cannot scroll to " + position + ", item count is " + getItemCount());
             return;
         }
 
@@ -400,7 +404,7 @@ public class StaticGridLayoutManager extends RecyclerView.LayoutManager {
         //Take leftmost measurements from the top-left child
         final View topView = getChildAt(0);
         //Take rightmost measurements from the top-right child
-        final View bottomView = getChildAt(mVisibleColumnCount-1);
+        final View bottomView = getChildAt(mVisibleColumnCount - 1);
 
         //Optimize the case where the entire data set is too small to scroll
         int viewSpan = getDecoratedRight(bottomView) - getDecoratedLeft(topView);
@@ -481,7 +485,7 @@ public class StaticGridLayoutManager extends RecyclerView.LayoutManager {
         //Take top measurements from the top-left child
         final View topView = getChildAt(0);
         //Take bottom measurements from the bottom-right child.
-        final View bottomView = getChildAt(getChildCount()-1);
+        final View bottomView = getChildAt(getChildCount() - 1);
 
         //Optimize the case where the entire data set is too small to scroll
         int viewSpan = getDecoratedBottom(bottomView) - getDecoratedTop(topView);
@@ -571,7 +575,7 @@ public class StaticGridLayoutManager extends RecyclerView.LayoutManager {
      */
     @Override
     public View findViewByPosition(int position) {
-        for (int i=0; i < getChildCount(); i++) {
+        for (int i = 0; i < getChildCount(); i++) {
             if (positionOfIndex(i) == position) {
                 return getChildAt(i);
             }
@@ -580,12 +584,15 @@ public class StaticGridLayoutManager extends RecyclerView.LayoutManager {
         return null;
     }
 
-    /** Private Helpers and Metrics Accessors */
+    /**
+     * Private Helpers and Metrics Accessors
+     */
 
     /* Return the overall column index of this position in the global layout */
     private int getGlobalColumnOfPosition(int position) {
         return position % getTotalColumnCount();
     }
+
     /* Return the overall row index of this position in the global layout */
     private int getGlobalRowOfPosition(int position) {
         return position / getTotalColumnCount();

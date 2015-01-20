@@ -3,6 +3,7 @@ package com.example.android.recyclerplayground;
 import android.content.Context;
 import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 /**
  * ItemDecoration implementation that applies an inset margin
@@ -18,7 +19,10 @@ public class InsetDecoration extends RecyclerView.ItemDecoration {
     }
 
     @Override
-    public void getItemOffsets(Rect outRect, int itemPosition, RecyclerView parent) {
+    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+
+        super.getItemOffsets(outRect, view, parent, state);
+
         //We can supply forced insets for each item view here in the Rect
         outRect.set(mInsets, mInsets, mInsets, mInsets);
     }

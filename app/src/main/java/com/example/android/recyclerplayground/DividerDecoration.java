@@ -30,7 +30,7 @@ public class DividerDecoration extends RecyclerView.ItemDecoration {
     }
 
     @Override
-    public void onDrawOver(Canvas c, RecyclerView parent) {
+    public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
         drawVertical(c, parent);
     }
 
@@ -52,7 +52,7 @@ public class DividerDecoration extends RecyclerView.ItemDecoration {
     }
 
     @Override
-    public void getItemOffsets(Rect outRect, int itemPosition, RecyclerView parent) {
+    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
         //We can supply forced insets for each item view here in the Rect
         outRect.set(mInsets, mInsets, mInsets, mInsets);
     }

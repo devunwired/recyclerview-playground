@@ -3,13 +3,9 @@ Android RecyclerView Examples
 
 This repository contains examples for using the RecyclerView widget found in the Android Support Library.
 
-Pre-Android "L" Note
---------------------
-While Android "L" is in preview, the support library associated with RecyclerView has its minimum SDK version set to L (v21). At least for the time being, in order to use these samples on an earlier Android device (they work back to v7), add the following line to your AndroidManifest.xml file (under the `<manifest>` element:
-
-    <uses-sdk tools:node="replace" />
-
-This will cause Gradle to ignore the updated SDK version in the library.
+Disclaimer
+----------
+This repository contains sample code intended to demonstrate the capabilities of the RecyclerView layout manager APIs. It is not intended to be used as-is in applications as a library dependency, and will not be maintained as such. Bug fix contributions are welcome, but issues and feature requests will not be addressed.
 
 Example Contents
 ----------------
@@ -32,7 +28,7 @@ License
 
 The code supplied here is covered under the MIT Open Source License:
 
-Copyright (c) 2014 Wireless Designs, LLC
+Copyright (c) 2015 Wireless Designs, LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

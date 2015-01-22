@@ -6,6 +6,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
+import android.widget.TextView;
+
+import com.example.android.recyclerplayground.R;
 
 /**
  * A {@link android.support.v7.widget.RecyclerView.LayoutManager} implementation
@@ -60,6 +63,14 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /*
+     * TODO: Write something eloquent here
+     */
+    @Override
+    public boolean supportsPredictiveItemAnimations() {
+        return false;
+    }
+
+    /*
      * This method is your initial call from the framework. You will receive it when you
      * need to start laying out the initial set of views. This method will not be called
      * repeatedly, so don't rely on it to continually process changes during user
@@ -70,6 +81,8 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
      */
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+        Log.v(TAG, "onLayoutChildren: "+getItemCount()+" items, pre-layout = "+state.isPreLayout());
+
         //We have nothing to show for an empty data set but clear any existing views
         if (getItemCount() == 0) {
             detachAndScrapAttachedViews(recycler);
@@ -157,7 +170,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
         detachAndScrapAttachedViews(recycler);
 
         //Fill the grid for the initial layout of views
-        fillGrid(DIRECTION_NONE, childLeft, childTop, recycler);
+        fillGrid(DIRECTION_NONE, childLeft, childTop, recycler, state.isPreLayout());
     }
 
     @Override
@@ -198,6 +211,10 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private void fillGrid(int direction, int emptyLeft, int emptyTop, RecyclerView.Recycler recycler) {
+        fillGrid(direction, emptyLeft, emptyTop, recycler, false);
+    }
+
+    private void fillGrid(int direction, int emptyLeft, int emptyTop, RecyclerView.Recycler recycler, boolean preLayout) {
         if (mFirstVisiblePosition < 0) mFirstVisiblePosition = 0;
         if (mFirstVisiblePosition >= getItemCount()) mFirstVisiblePosition = (getItemCount() - 1);
 
@@ -263,7 +280,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
 
         /*
          * Next, we supply the grid of items that are deemed visible.
-         * If these items were previously there, they will simple be
+         * If these items were previously there, they will simply be
          * re-attached. New views that must be created are obtained
          * from the Recycler and added.
          */
@@ -281,6 +298,8 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
             //Layout this position
             View view = viewCache.get(nextPosition);
             if (view == null) {
+                int layoutLeft = leftOffset;
+                int layoutTop = topOffset;
                 /*
                  * The Recycler will give us either a newly constructed view,
                  * or a recycled view it has on-hand. In either case, the
@@ -288,7 +307,35 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
                  * adapter for us.
                  */
                 view = recycler.getViewForPosition(nextPosition);
+
+                /*
+                 * We have to account for the pre-layout step for predictive animations.
+                 */
+                RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) view.getLayoutParams();
+                final int currentPosition = lp.getViewPosition();
+                final int futurePosition = recycler.convertPreLayoutPositionToPostLayout(currentPosition);
+                //Only views that will be hidden but not removed need special care
+
+                final boolean hiding = isPositionVisible(currentPosition) && !isPositionVisible(futurePosition);
+                final boolean showing = !isPositionVisible(currentPosition) && isPositionVisible(futurePosition);
+//                if (preLayout && !lp.isItemRemoved() && !isPositionVisible(futurePosition)) {
+                if (preLayout) {
+                    CharSequence score = ((TextView) view.findViewById(R.id.text_score_home)).getText();
+                    if (lp.isItemRemoved()) {
+                        Log.d(TAG, "View " + score + " is leaving");
+                    } else if (showing) {
+                        Log.d(TAG, "View " + score + " is adding");
+                    } else if (hiding) {
+                        Log.i(TAG, "View " + score + " is hiding (->"+futurePosition+")");
+                        int rowDelta = getGlobalRowOfPosition(futurePosition) - getGlobalRowOfPosition(currentPosition);
+                        int colDelta = getGlobalColumnOfPosition(futurePosition) - getGlobalColumnOfPosition(currentPosition);
+                        //Adjust the pre-layout position to its conceptual location
+                        layoutTop += rowDelta * mDecoratedChildHeight;
+                        layoutLeft += colDelta * mDecoratedChildWidth;
+                    }
+                }
                 addView(view);
+
 
                 /*
                  * It is prudent to measure/layout each new view we
@@ -296,9 +343,9 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
                  * this for views we are just re-arranging.
                  */
                 measureChildWithMargins(view, 0, 0);
-                layoutDecorated(view, leftOffset, topOffset,
-                        leftOffset + mDecoratedChildWidth,
-                        topOffset + mDecoratedChildHeight);
+                layoutDecorated(view, layoutLeft, layoutTop,
+                        layoutLeft + mDecoratedChildWidth,
+                        layoutTop + mDecoratedChildHeight);
             } else {
                 //Re-attach the cached view at its new index
                 attachView(view);
@@ -320,7 +367,12 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
          * necessary because they are no longer visible.
          */
         for (int i=0; i < viewCache.size(); i++) {
-            recycler.recycleView(viewCache.valueAt(i));
+            final View removingView = viewCache.valueAt(i);
+            if (preLayout) {
+                Log.d(TAG, "Prelayout position "+positionOfIndex(i)+" "+i);
+            } else {
+                recycler.recycleView(removingView);
+            }
         }
     }
 
@@ -597,6 +649,15 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     /* Return the overall row index of this position in the global layout */
     private int getGlobalRowOfPosition(int position) {
         return position / getTotalColumnCount();
+    }
+
+    private boolean isPositionVisible(int position) {
+        final int row = getGlobalRowOfPosition(position);
+        final int column = getGlobalColumnOfPosition(position);
+        return (row <= getLastVisibleRow()
+                && row >= getFirstVisibleRow()
+                && column <= getLastVisibleColumn()
+                && column >= getFirstVisibleColumn() );
     }
 
     /*

@@ -14,6 +14,7 @@ import com.example.android.recyclerplayground.fragments.HorizontalFragment;
 import com.example.android.recyclerplayground.fragments.NavigationDrawerFragment;
 import com.example.android.recyclerplayground.fragments.StaticTwoWayFragment;
 import com.example.android.recyclerplayground.fragments.VerticalFragment;
+import com.example.android.recyclerplayground.fragments.VerticalGridFragment;
 
 
 public class MainActivity extends ActionBarActivity implements
@@ -57,9 +58,12 @@ public class MainActivity extends ActionBarActivity implements
                 ft.replace(R.id.container, HorizontalFragment.newInstance());
                 break;
             case 2:
-                ft.replace(R.id.container, StaticTwoWayFragment.newInstance());
+                ft.replace(R.id.container, VerticalGridFragment.newInstance());
                 break;
             case 3:
+                ft.replace(R.id.container, StaticTwoWayFragment.newInstance());
+                break;
+            case 4:
                 ft.replace(R.id.container, FixedTwoWayFragment.newInstance());
                 break;
             default:

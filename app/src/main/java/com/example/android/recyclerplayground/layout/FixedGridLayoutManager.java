@@ -1,14 +1,19 @@
 package com.example.android.recyclerplayground.layout;
 
+import android.content.Context;
 import android.graphics.PointF;
 import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.android.recyclerplayground.R;
+
+import java.util.HashSet;
 
 /**
  * A {@link android.support.v7.widget.RecyclerView.LayoutManager} implementation
@@ -39,6 +44,9 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     private static final int DIRECTION_UP = 2;
     private static final int DIRECTION_DOWN = 3;
 
+    /* Cache location for views used in predictive animations */
+    private HashSet<View> mPrelayoutCache = new HashSet<View>();
+
     /* First (top-left) position visible at any point */
     private int mFirstVisiblePosition;
     /* Consistent size applied to all child views */
@@ -67,7 +75,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
      */
     @Override
     public boolean supportsPredictiveItemAnimations() {
-        return false;
+        return true;
     }
 
     /*
@@ -81,8 +89,6 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
      */
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-        Log.v(TAG, "onLayoutChildren: "+getItemCount()+" items, pre-layout = "+state.isPreLayout());
-
         //We have nothing to show for an empty data set but clear any existing views
         if (getItemCount() == 0) {
             detachAndScrapAttachedViews(recycler);
@@ -142,15 +148,24 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
              * is much smaller than it was before, and you are scrolled to
              * a location where no items would exist.
              */
-            int lastVisiblePosition = positionOfIndex(getVisibleChildCount() - 1);
-            if (lastVisiblePosition >= getItemCount()) {
-                lastVisiblePosition = (getItemCount() - 1);
-                int lastColumn = mVisibleColumnCount - 1;
-                int lastRow = mVisibleRowCount - 1;
-
-                //Adjust to align the last position in the bottom-right
-                mFirstVisiblePosition = Math.max(
-                        lastVisiblePosition - lastColumn - (lastRow * getTotalColumnCount()), 0);
+            int maxFirstRow = getTotalRowCount() - (mVisibleRowCount-1);
+            int maxFirstCol = getTotalColumnCount() - (mVisibleColumnCount-1);
+            boolean isOutOfRowBounds = getFirstVisibleRow() > maxFirstRow;
+            boolean isOutOfColBounds =  getFirstVisibleColumn() > maxFirstCol;
+            if (isOutOfRowBounds || isOutOfColBounds) {
+                int firstRow;
+                if (isOutOfRowBounds) {
+                    firstRow = maxFirstRow;
+                } else {
+                    firstRow = getFirstVisibleRow();
+                }
+                int firstCol;
+                if (isOutOfColBounds) {
+                    firstCol = maxFirstCol;
+                } else {
+                    firstCol = getFirstVisibleColumn();
+                }
+                mFirstVisiblePosition = firstRow * getTotalColumnCount() + firstCol;
 
                 childLeft = getHorizontalSpace() - (mDecoratedChildWidth * mVisibleColumnCount);
                 childTop = getVerticalSpace() - (mDecoratedChildHeight * mVisibleRowCount);
@@ -166,11 +181,61 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
 
+        if (state.isPreLayout()) {
+            mPrelayoutCache.clear();
+            for (int i=0; i < getChildCount(); i++) {
+                final View view = getChildAt(i);
+                LayoutParams lp = (LayoutParams) view.getLayoutParams();
+                //Cache all views that aren't explicitly removed
+                if (!lp.isItemRemoved()) {
+                    mPrelayoutCache.add(view);
+                }
+            }
+            Log.v(TAG, "Pre-layout: Cached "+mPrelayoutCache.size()+" views");
+        }
+
         //Clear all attached views into the recycle bin
         detachAndScrapAttachedViews(recycler);
 
         //Fill the grid for the initial layout of views
-        fillGrid(DIRECTION_NONE, childLeft, childTop, recycler, state.isPreLayout());
+        fillGrid(DIRECTION_NONE, childLeft, childTop, recycler);//, state.isPreLayout());
+
+        if (!state.isPreLayout() && !mPrelayoutCache.isEmpty()) {
+            //Remove every view that is still here
+            for (int i=0; i < getChildCount(); i++) {
+                final View view = getChildAt(i);
+                mPrelayoutCache.remove(view);
+            }
+
+            Log.v(TAG, "Post-layout: "+mPrelayoutCache.size()+" views remaining to manage");
+            for (View view : mPrelayoutCache) {
+                //Adjust each disappearing view to its proper place
+                final LayoutParams lp = (LayoutParams) view.getLayoutParams();
+                CharSequence score = ((TextView) view.findViewById(R.id.text_score_home)).getText();
+
+                final int newRow = getGlobalRowOfPosition(lp.getViewPosition());
+                final int rowDelta = newRow - lp.row;
+                final int newCol = getGlobalColumnOfPosition(lp.getViewPosition());
+                final int colDelta = newCol - lp.column;
+
+                //Adjust the post-layout position to its conceptual location
+                int layoutLeft = getDecoratedLeft(view);
+                int layoutTop = getDecoratedTop(view);
+                layoutTop += rowDelta * mDecoratedChildHeight;
+                layoutLeft += colDelta * mDecoratedChildWidth;
+
+                Log.d(TAG, "View " + score + " is hiding: "
+                        + " (" + lp.row + "," + lp.column + ") -> (" + newRow + "," + newCol + ")"
+                        + " attached? " + (view.getParent() == null) );
+
+                layoutDecorated(view, layoutLeft, layoutTop,
+                        layoutLeft + mDecoratedChildWidth,
+                        layoutTop + mDecoratedChildHeight);
+            }
+
+            //We're done now
+            mPrelayoutCache.clear();
+        }
     }
 
     @Override
@@ -298,8 +363,6 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
             //Layout this position
             View view = viewCache.get(nextPosition);
             if (view == null) {
-                int layoutLeft = leftOffset;
-                int layoutTop = topOffset;
                 /*
                  * The Recycler will give us either a newly constructed view,
                  * or a recycled view it has on-hand. In either case, the
@@ -308,34 +371,11 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
                  */
                 view = recycler.getViewForPosition(nextPosition);
 
-                /*
-                 * We have to account for the pre-layout step for predictive animations.
-                 */
-                RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) view.getLayoutParams();
-                final int currentPosition = lp.getViewPosition();
-                final int futurePosition = recycler.convertPreLayoutPositionToPostLayout(currentPosition);
-                //Only views that will be hidden but not removed need special care
-
-                final boolean hiding = isPositionVisible(currentPosition) && !isPositionVisible(futurePosition);
-                final boolean showing = !isPositionVisible(currentPosition) && isPositionVisible(futurePosition);
-//                if (preLayout && !lp.isItemRemoved() && !isPositionVisible(futurePosition)) {
-                if (preLayout) {
-                    CharSequence score = ((TextView) view.findViewById(R.id.text_score_home)).getText();
-                    if (lp.isItemRemoved()) {
-                        Log.d(TAG, "View " + score + " is leaving");
-                    } else if (showing) {
-                        Log.d(TAG, "View " + score + " is adding");
-                    } else if (hiding) {
-                        Log.i(TAG, "View " + score + " is hiding (->"+futurePosition+")");
-                        int rowDelta = getGlobalRowOfPosition(futurePosition) - getGlobalRowOfPosition(currentPosition);
-                        int colDelta = getGlobalColumnOfPosition(futurePosition) - getGlobalColumnOfPosition(currentPosition);
-                        //Adjust the pre-layout position to its conceptual location
-                        layoutTop += rowDelta * mDecoratedChildHeight;
-                        layoutLeft += colDelta * mDecoratedChildWidth;
-                    }
-                }
                 addView(view);
 
+                LayoutParams lp = (LayoutParams) view.getLayoutParams();
+                lp.row = getGlobalRowOfPosition(nextPosition);
+                lp.column = getGlobalColumnOfPosition(nextPosition);
 
                 /*
                  * It is prudent to measure/layout each new view we
@@ -343,9 +383,9 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
                  * this for views we are just re-arranging.
                  */
                 measureChildWithMargins(view, 0, 0);
-                layoutDecorated(view, layoutLeft, layoutTop,
-                        layoutLeft + mDecoratedChildWidth,
-                        layoutTop + mDecoratedChildHeight);
+                layoutDecorated(view, leftOffset, topOffset,
+                        leftOffset + mDecoratedChildWidth,
+                        topOffset + mDecoratedChildHeight);
             } else {
                 //Re-attach the cached view at its new index
                 attachView(view);
@@ -464,7 +504,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
 
         //Optimize the case where the entire data set is too small to scroll
         int viewSpan = getDecoratedRight(bottomView) - getDecoratedLeft(topView);
-        if (viewSpan <= getHorizontalSpace()) {
+        if (viewSpan < getHorizontalSpace()) {
             //We cannot scroll in either direction
             return 0;
         }
@@ -545,7 +585,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
 
         //Optimize the case where the entire data set is too small to scroll
         int viewSpan = getDecoratedBottom(bottomView) - getDecoratedTop(topView);
-        if (viewSpan <= getVerticalSpace()) {
+        if (viewSpan < getVerticalSpace()) {
             //We cannot scroll in either direction
             return 0;
         }
@@ -615,17 +655,6 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /*
-     * We must override this method to provide the default layout
-     * parameters that each child view will receive when added.
-     */
-    @Override
-    public RecyclerView.LayoutParams generateDefaultLayoutParams() {
-        return new RecyclerView.LayoutParams(
-                RecyclerView.LayoutParams.WRAP_CONTENT,
-                RecyclerView.LayoutParams.WRAP_CONTENT);
-    }
-
-    /*
      * This is a helper method used by RecyclerView to determine
      * if a specific child view can be returned.
      */
@@ -638,6 +667,60 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
         }
 
         return null;
+    }
+
+    /** Boilerplate to extend LayoutParams for tracking row/column of attached views */
+
+    /*
+     * Even without extending LayoutParams, we must override this method
+     * to provide the default layout parameters that each child view
+     * will receive when added.
+     */
+    @Override
+    public RecyclerView.LayoutParams generateDefaultLayoutParams() {
+        return new LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+    }
+    @Override
+    public RecyclerView.LayoutParams generateLayoutParams(Context c, AttributeSet attrs) {
+        return new LayoutParams(c, attrs);
+    }
+    @Override
+    public RecyclerView.LayoutParams generateLayoutParams(ViewGroup.LayoutParams lp) {
+        if (lp instanceof ViewGroup.MarginLayoutParams) {
+            return new LayoutParams((ViewGroup.MarginLayoutParams) lp);
+        } else {
+            return new LayoutParams(lp);
+        }
+    }
+    @Override
+    public boolean checkLayoutParams(RecyclerView.LayoutParams lp) {
+        return lp instanceof LayoutParams;
+    }
+
+    public static class LayoutParams extends RecyclerView.LayoutParams {
+
+        //Current row in the grid
+        public int row;
+        //Current column in the grid
+        public int column;
+
+        public LayoutParams(Context c, AttributeSet attrs) {
+            super(c, attrs);
+        }
+        public LayoutParams(int width, int height) {
+            super(width, height);
+        }
+        public LayoutParams(ViewGroup.MarginLayoutParams source) {
+            super(source);
+        }
+        public LayoutParams(ViewGroup.LayoutParams source) {
+            super(source);
+        }
+        public LayoutParams(RecyclerView.LayoutParams source) {
+            super(source);
+        }
     }
 
     /** Private Helpers and Metrics Accessors */
@@ -706,6 +789,9 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private int getTotalRowCount() {
+        if (getItemCount() == 0 || mTotalColumnCount == 0) {
+            return 0;
+        }
         int maxRow = getItemCount() / mTotalColumnCount;
         //Bump the row count if it's not exactly even
         if (getItemCount() % mTotalColumnCount != 0) {

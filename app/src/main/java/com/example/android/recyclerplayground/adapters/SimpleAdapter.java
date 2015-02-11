@@ -41,9 +41,9 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
      * RecyclerView method, notifyItemInserted(), to trigger any enabled item
      * animations in addition to updating the view.
      */
-    public void addItem() {
-        mItems.add(1, generateDummyItem());
-        notifyItemInserted(1);
+    public void addItem(int position) {
+        mItems.add(position, generateDummyItem());
+        notifyItemInserted(position);
     }
 
     /*
@@ -51,11 +51,11 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
      * RecyclerView method, notifyItemRemoved(), to trigger any enabled item
      * animations in addition to updating the view.
      */
-    public void removeItem() {
-        if (mItems.isEmpty()) return;
+    public void removeItem(int position) {
+        if (position >= mItems.size()) return;
 
-        mItems.remove(0);
-        notifyItemRemoved(0);
+        mItems.remove(position);
+        notifyItemRemoved(position);
     }
 
     @Override

@@ -63,10 +63,10 @@ public abstract class RecyclerFragment extends Fragment implements AdapterView.O
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add:
-                mAdapter.addItem();
+                mAdapter.addItem(1);
                 return true;
             case R.id.action_remove:
-                mAdapter.removeItem();
+                mAdapter.removeItem(9);
                 return true;
             case R.id.action_empty:
                 mAdapter.setItemCount(0);

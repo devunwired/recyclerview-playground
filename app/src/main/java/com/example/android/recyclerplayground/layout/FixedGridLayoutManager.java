@@ -262,10 +262,8 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
                 final int colDelta = newCol - lp.column;
 
                 //Adjust the post-layout position to its conceptual location
-                int layoutLeft = getDecoratedLeft(view);
-                int layoutTop = getDecoratedTop(view);
-                layoutTop += rowDelta * mDecoratedChildHeight;
-                layoutLeft += colDelta * mDecoratedChildWidth;
+                int layoutLeft = getDecoratedLeft(view) + colDelta * mDecoratedChildWidth;
+                int layoutTop = getDecoratedTop(view) + rowDelta * mDecoratedChildHeight;
 
                 /*
                  * LayoutManager has a special method for attaching views that
@@ -491,10 +489,6 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
                         //Set the pre-layout position to match where the view will be placed later
                         int layoutTop = getDecoratedTop(view) + rowDelta * mDecoratedChildHeight;
                         int layoutLeft = getDecoratedLeft(view) + colDelta * mDecoratedChildWidth;
-
-                        LayoutParams appearingLp = (LayoutParams) appearing.getLayoutParams();
-                        appearingLp.row = getGlobalRowOfPosition(extraPosition);
-                        appearingLp.column = getGlobalColumnOfPosition(extraPosition);
 
                         measureChildWithMargins(appearing, 0, 0);
                         layoutDecorated(appearing, layoutLeft, layoutTop,

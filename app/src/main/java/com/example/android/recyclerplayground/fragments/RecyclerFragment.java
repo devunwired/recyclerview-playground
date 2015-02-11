@@ -41,10 +41,10 @@ public abstract class RecyclerFragment extends Fragment implements AdapterView.O
         mList.setLayoutManager(getLayoutManager());
         mList.addItemDecoration(getItemDecoration());
 
-        mList.getItemAnimator().setAddDuration(600);
+        mList.getItemAnimator().setAddDuration(1000);
         mList.getItemAnimator().setChangeDuration(1000);
         mList.getItemAnimator().setMoveDuration(1000);
-        mList.getItemAnimator().setRemoveDuration(600);
+        mList.getItemAnimator().setRemoveDuration(1000);
 
         mAdapter = new SimpleAdapter();
         mAdapter.setItemCount(getDefaultItemCount());
@@ -66,7 +66,7 @@ public abstract class RecyclerFragment extends Fragment implements AdapterView.O
                 mAdapter.addItem(1);
                 return true;
             case R.id.action_remove:
-                mAdapter.removeItem(9);
+                mAdapter.removeItem(0);
                 return true;
             case R.id.action_empty:
                 mAdapter.setItemCount(0);

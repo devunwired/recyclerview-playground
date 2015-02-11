@@ -62,6 +62,10 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     /* Flag to force current scroll offsets to be ignored on re-layout */
     private boolean mForceClearOffsets;
 
+    /* Used for tracking off-screen change events */
+    private int mFirstChangedPosition;
+    private int mChangedPositionCount;
+
     /**
      * Set the number of columns the layout manager will use. This will
      * trigger a layout update.
@@ -83,9 +87,6 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     public boolean supportsPredictiveItemAnimations() {
         return true;
     }
-
-    private int mFirstChangedPosition;
-    private int mChangedPositionCount;
 
     /*
      * Called by RecyclerView when a view removal is triggered. This is called

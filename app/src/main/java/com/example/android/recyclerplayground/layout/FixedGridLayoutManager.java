@@ -253,6 +253,12 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
             }
 
             for (View view : mPrelayoutCache) {
+                /*
+                 * LayoutManager has a special method for attaching views that
+                 * will only be around long enough to animate.
+                 */
+                addDisappearingView(view);
+
                 //Adjust each disappearing view to its proper place
                 final LayoutParams lp = (LayoutParams) view.getLayoutParams();
 
@@ -261,19 +267,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
                 final int newCol = getGlobalColumnOfPosition(lp.getViewPosition());
                 final int colDelta = newCol - lp.column;
 
-                //Adjust the post-layout position to its conceptual location
-                int layoutLeft = getDecoratedLeft(view) + colDelta * mDecoratedChildWidth;
-                int layoutTop = getDecoratedTop(view) + rowDelta * mDecoratedChildHeight;
-
-                /*
-                 * LayoutManager has a special method for attaching views that
-                 * will only be around long enough to animate.
-                 */
-                addDisappearingView(view);
-
-                layoutDecorated(view, layoutLeft, layoutTop,
-                        layoutLeft + mDecoratedChildWidth,
-                        layoutTop + mDecoratedChildHeight);
+                layoutTempChildView(view, rowDelta, colDelta, view);
             }
 
             //We're done now
@@ -486,14 +480,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
                         final int newCol = getGlobalColumnOfPosition(extraPosition);
                         final int colDelta = newCol - getGlobalColumnOfPosition(nextPosition);
 
-                        //Set the pre-layout position to match where the view will be placed later
-                        int layoutTop = getDecoratedTop(view) + rowDelta * mDecoratedChildHeight;
-                        int layoutLeft = getDecoratedLeft(view) + colDelta * mDecoratedChildWidth;
-
-                        measureChildWithMargins(appearing, 0, 0);
-                        layoutDecorated(appearing, layoutLeft, layoutTop,
-                                layoutLeft + mDecoratedChildWidth,
-                                layoutTop + mDecoratedChildHeight);
+                        layoutTempChildView(appearing, rowDelta, colDelta, view);
                     }
                 }
             }
@@ -818,6 +805,18 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /** Private Helpers and Metrics Accessors */
+
+    /* Helper to lay out appearing/disappearing children */
+    private void layoutTempChildView(View child, int rowDelta, int colDelta, View referenceView) {
+        //Set the layout position to the global row/column difference from the reference view
+        int layoutTop = getDecoratedTop(referenceView) + rowDelta * mDecoratedChildHeight;
+        int layoutLeft = getDecoratedLeft(referenceView) + colDelta * mDecoratedChildWidth;
+
+        measureChildWithMargins(child, 0, 0);
+        layoutDecorated(child, layoutLeft, layoutTop,
+                layoutLeft + mDecoratedChildWidth,
+                layoutTop + mDecoratedChildHeight);
+    }
 
     /* Return the overall column index of this position in the global layout */
     private int getGlobalColumnOfPosition(int position) {

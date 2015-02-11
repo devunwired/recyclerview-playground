@@ -253,21 +253,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
             }
 
             for (View view : mPrelayoutCache) {
-                /*
-                 * LayoutManager has a special method for attaching views that
-                 * will only be around long enough to animate.
-                 */
-                addDisappearingView(view);
-
-                //Adjust each disappearing view to its proper place
-                final LayoutParams lp = (LayoutParams) view.getLayoutParams();
-
-                final int newRow = getGlobalRowOfPosition(lp.getViewPosition());
-                final int rowDelta = newRow - lp.row;
-                final int newCol = getGlobalColumnOfPosition(lp.getViewPosition());
-                final int colDelta = newCol - lp.column;
-
-                layoutTempChildView(view, rowDelta, colDelta, view);
+                layoutDisappearingView(view);
             }
 
             //We're done now
@@ -456,33 +442,13 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
             if (i % mVisibleColumnCount == (mVisibleColumnCount - 1)) {
                 leftOffset = startLeftOffset;
                 topOffset += mDecoratedChildHeight;
+
+                //During pre-layout, on each column end, apply any additional appearing views
+                if (preLayout) {
+                    layoutAppearingViews(recycler, view, nextPosition, removedPositions.size());
+                }
             } else {
                 leftOffset += mDecoratedChildWidth;
-            }
-
-            //During pre-layout, include additional views necessary to compensate for visible views that are going away
-            LayoutParams lp = (LayoutParams) view.getLayoutParams();
-            boolean isLastColumn = lp.column >= getLastVisibleColumn()-1;
-            if (preLayout && isLastColumn && removedPositions.size() > 0) {
-                for (int extra = 1; extra <= removedPositions.size(); extra++) {
-                    final int extraPosition = nextPosition + extra;
-                    if (extraPosition >= 0 && extraPosition < getItemCount()) {
-                        /*
-                         * Obtain additional position views that we expect to appear
-                         * as part of the animation.
-                         */
-                        View appearing = recycler.getViewForPosition(extraPosition);
-                        addView(appearing);
-
-                        //Find layout delta from reference position
-                        final int newRow = getGlobalRowOfPosition(extraPosition);
-                        final int rowDelta = newRow - getGlobalRowOfPosition(nextPosition);
-                        final int newCol = getGlobalColumnOfPosition(extraPosition);
-                        final int colDelta = newCol - getGlobalColumnOfPosition(nextPosition);
-
-                        layoutTempChildView(appearing, rowDelta, colDelta, view);
-                    }
-                }
             }
         }
 
@@ -804,7 +770,57 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    /** Private Helpers and Metrics Accessors */
+    /** Animation Layout Helpers */
+
+    /* Helper to obtain and place extra appearing views */
+    private void layoutAppearingViews(RecyclerView.Recycler recycler, View referenceView, int referencePosition, int extraCount) {
+        //Nothing to do...
+        if (extraCount < 1) return;
+
+        for (int extra = 1; extra <= extraCount; extra++) {
+            //Grab the next position after the reference
+            final int extraPosition = referencePosition + extra;
+            if (extraPosition < 0 || extraPosition >= getItemCount()) {
+                //Can't do anything with this
+                continue;
+            }
+
+            /*
+             * Obtain additional position views that we expect to appear
+             * as part of the animation.
+             */
+            View appearing = recycler.getViewForPosition(extraPosition);
+            addView(appearing);
+
+            //Find layout delta from reference position
+            final int newRow = getGlobalRowOfPosition(extraPosition);
+            final int rowDelta = newRow - getGlobalRowOfPosition(referencePosition);
+            final int newCol = getGlobalColumnOfPosition(extraPosition);
+            final int colDelta = newCol - getGlobalColumnOfPosition(referencePosition);
+
+            layoutTempChildView(appearing, rowDelta, colDelta, referenceView);
+        }
+    }
+
+    /* Helper to place a disappearing view */
+    private void layoutDisappearingView(View disappearingChild) {
+        /*
+         * LayoutManager has a special method for attaching views that
+         * will only be around long enough to animate.
+         */
+        addDisappearingView(disappearingChild);
+
+        //Adjust each disappearing view to its proper place
+        final LayoutParams lp = (LayoutParams) disappearingChild.getLayoutParams();
+
+        final int newRow = getGlobalRowOfPosition(lp.getViewPosition());
+        final int rowDelta = newRow - lp.row;
+        final int newCol = getGlobalColumnOfPosition(lp.getViewPosition());
+        final int colDelta = newCol - lp.column;
+
+        layoutTempChildView(disappearingChild, rowDelta, colDelta, disappearingChild);
+    }
+
 
     /* Helper to lay out appearing/disappearing children */
     private void layoutTempChildView(View child, int rowDelta, int colDelta, View referenceView) {
@@ -817,6 +833,8 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
                 layoutLeft + mDecoratedChildWidth,
                 layoutTop + mDecoratedChildHeight);
     }
+
+    /** Private Helpers and Metrics Accessors */
 
     /* Return the overall column index of this position in the global layout */
     private int getGlobalColumnOfPosition(int position) {

@@ -381,6 +381,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
              * so we can properly lay out all current (and appearing) views in their
              * initial locations.
              */
+            int offsetPositionDelta = 0;
             if (preLayout) {
                 int offsetPosition = nextPosition;
 
@@ -392,7 +393,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
                         offsetPosition--;
                     }
                 }
-
+                offsetPositionDelta = nextPosition - offsetPosition;
                 nextPosition = offsetPosition;
             }
 
@@ -445,7 +446,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
 
                 //During pre-layout, on each column end, apply any additional appearing views
                 if (preLayout) {
-                    layoutAppearingViews(recycler, view, nextPosition, removedPositions.size());
+                    layoutAppearingViews(recycler, view, nextPosition, removedPositions.size(), offsetPositionDelta);
                 }
             } else {
                 leftOffset += mDecoratedChildWidth;
@@ -773,7 +774,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     /** Animation Layout Helpers */
 
     /* Helper to obtain and place extra appearing views */
-    private void layoutAppearingViews(RecyclerView.Recycler recycler, View referenceView, int referencePosition, int extraCount) {
+    private void layoutAppearingViews(RecyclerView.Recycler recycler, View referenceView, int referencePosition, int extraCount, int offset) {
         //Nothing to do...
         if (extraCount < 1) return;
 
@@ -793,10 +794,10 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
             addView(appearing);
 
             //Find layout delta from reference position
-            final int newRow = getGlobalRowOfPosition(extraPosition);
-            final int rowDelta = newRow - getGlobalRowOfPosition(referencePosition);
-            final int newCol = getGlobalColumnOfPosition(extraPosition);
-            final int colDelta = newCol - getGlobalColumnOfPosition(referencePosition);
+            final int newRow = getGlobalRowOfPosition(extraPosition + offset);
+            final int rowDelta = newRow - getGlobalRowOfPosition(referencePosition + offset);
+            final int newCol = getGlobalColumnOfPosition(extraPosition + offset);
+            final int colDelta = newCol - getGlobalColumnOfPosition(referencePosition + offset);
 
             layoutTempChildView(appearing, rowDelta, colDelta, referenceView);
         }

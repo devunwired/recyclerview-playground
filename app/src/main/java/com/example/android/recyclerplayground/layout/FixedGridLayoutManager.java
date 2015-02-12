@@ -198,6 +198,21 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
             }
 
             /*
+             * When data set is too small to scroll vertically, adjust vertical offset
+             * and shift position to the first row, preserving current column
+             */
+            if (!state.isPreLayout() && getVerticalSpace() > (getTotalRowCount() * mDecoratedChildHeight)) {
+                mFirstVisiblePosition = mFirstVisiblePosition % getTotalColumnCount();
+                childTop = 0;
+
+                //If the shift overscrolls the column max, back it off
+                if ((mFirstVisiblePosition + mVisibleColumnCount) > getItemCount()) {
+                    mFirstVisiblePosition = Math.max(getItemCount() - mVisibleColumnCount, 0);
+                    childLeft = 0;
+                }
+            }
+
+            /*
              * Adjust the visible position if out of bounds in the
              * new layout. This occurs when the new item count in an adapter
              * is much smaller than it was before, and you are scrolled to
@@ -839,11 +854,11 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
 
     /* Return the overall column index of this position in the global layout */
     private int getGlobalColumnOfPosition(int position) {
-        return position % getTotalColumnCount();
+        return position % mTotalColumnCount;
     }
     /* Return the overall row index of this position in the global layout */
     private int getGlobalRowOfPosition(int position) {
-        return position / getTotalColumnCount();
+        return position / mTotalColumnCount;
     }
 
     /*

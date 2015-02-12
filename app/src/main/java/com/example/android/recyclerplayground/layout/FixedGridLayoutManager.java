@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * A {@link android.support.v7.widget.RecyclerView.LayoutManager} implementation
@@ -45,9 +46,6 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     private static final int DIRECTION_END = 1;
     private static final int DIRECTION_UP = 2;
     private static final int DIRECTION_DOWN = 3;
-
-    /* Cache location for views used in predictive animations */
-    private HashSet<View> mPrelayoutCache = new HashSet<View>();
 
     /* First (top-left) position visible at any point */
     private int mFirstVisiblePosition;
@@ -111,7 +109,9 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
      * This method will be called when the data set in the adapter changes, so it can be
      * used to update a layout based on a new item count.
      *
-     * If predictive animations are enabled...TODO: Say something super smart...
+     * If predictive animations are enabled, you will see this called twice. First, with
+     * state.isPreLayout() returning true to lay out children in their initial conditions.
+     * Then again to lay out children in their final locations.
      */
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
@@ -153,16 +153,12 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
          * being removed in order to handle predictive animations
          */
         if (state.isPreLayout()) {
-            mPrelayoutCache.clear();
             removedCache = new SparseIntArray(getChildCount());
             for (int i=0; i < getChildCount(); i++) {
                 final View view = getChildAt(i);
                 LayoutParams lp = (LayoutParams) view.getLayoutParams();
 
-                if (!lp.isItemRemoved()) {
-                    //Cache all views that aren't explicitly removed
-                    mPrelayoutCache.add(view);
-                } else {
+                if (lp.isItemRemoved()) {
                     //Track these view removals as visible
                     removedCache.put(lp.getViewPosition(), REMOVE_VISIBLE);
                 }
@@ -246,19 +242,22 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
         //Fill the grid for the initial layout of views
         fillGrid(DIRECTION_NONE, childLeft, childTop, recycler, state.isPreLayout(), removedCache);
 
-        if (!state.isPreLayout() && !mPrelayoutCache.isEmpty()) {
-            //Remove every view that is still here
-            for (int i=0; i < getChildCount(); i++) {
-                final View view = getChildAt(i);
-                mPrelayoutCache.remove(view);
+        //Evaluate any disappearing views that may exist
+        if (!state.isPreLayout() && !recycler.getScrapList().isEmpty()) {
+            final List<RecyclerView.ViewHolder> scrapList = recycler.getScrapList();
+            final HashSet<View> disappearingViews = new HashSet<View>(scrapList.size());
+
+            for (RecyclerView.ViewHolder holder : scrapList) {
+                final View child = holder.itemView;
+                final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                if (!lp.isItemRemoved()) {
+                    disappearingViews.add(child);
+                }
             }
 
-            for (View view : mPrelayoutCache) {
-                layoutDisappearingView(view);
+            for (View child : disappearingViews) {
+                layoutDisappearingView(child);
             }
-
-            //We're done now
-            mPrelayoutCache.clear();
         }
     }
 

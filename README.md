@@ -10,17 +10,17 @@ This repository contains sample code intended to demonstrate the capabilities of
 Example Contents
 ----------------
 The following bits can be found in the main sample application:
-- Implementation of `LinearLayoutManager` for vertical and horizontal scrolling.
+- Implementation of `LinearLayoutManager` and `GridLayoutManager` for vertical and horizontal scrolling.
 - Custom ItemDecorations
  - `InsetDecoration` - Create an inset margin on all child views.
  - `DividerDecoration` - Create an inset margin and draw dividers below vertical child views.
  - `GridDividerDecoration` - Create an inset margin an draw dividers along grid lines
-- Custom LayoutManagers
- - `StaticGridLayoutManager` - 2D scrolling grid with variable column count based on data set. Window of visible (non-recycled) views is determined statically.
+- Custom LayoutManager
  - `FixedGridLayoutManager` - Similar to `StaticGridLayoutManager`, but with a controllable column count.
  
 The following examples are incubating on the `experimental` branch (these mostly work, if you feel like living dangerously):
 - Custom LayoutManagers
+ - `StaticGridLayoutManager` - 2D scrolling grid with variable column count based on data set. Window of visible (non-recycled) views is determined statically.
  - `DynamicGridLayoutManager` - 2D scrolling grid where window of visible views is determined dynamically. Results in fewer views in memory, but scrolling performance is questionable.
 
 License

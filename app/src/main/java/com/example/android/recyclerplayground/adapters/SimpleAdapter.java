@@ -42,6 +42,8 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
      * animations in addition to updating the view.
      */
     public void addItem(int position) {
+        if (position >= mItems.size()) return;
+        
         mItems.add(position, generateDummyItem());
         notifyItemInserted(position);
     }

@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
+import com.example.android.recyclerplayground.NumberPickerDialog;
 import com.example.android.recyclerplayground.R;
 import com.example.android.recyclerplayground.adapters.SimpleAdapter;
 
@@ -61,12 +62,33 @@ public abstract class RecyclerFragment extends Fragment implements AdapterView.O
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        NumberPickerDialog dialog;
         switch (item.getItemId()) {
             case R.id.action_add:
-                mAdapter.addItem(0);
+                dialog = new NumberPickerDialog(getActivity());
+                dialog.setTitle("Position to Add");
+                dialog.setPickerRange(0, mAdapter.getItemCount()-1);
+                dialog.setOnNumberSelectedListener(new NumberPickerDialog.OnNumberSelectedListener() {
+                    @Override
+                    public void onNumberSelected(int value) {
+                        mAdapter.addItem(value);
+                    }
+                });
+                dialog.show();
+
                 return true;
             case R.id.action_remove:
-                mAdapter.removeItem(0);
+                dialog = new NumberPickerDialog(getActivity());
+                dialog.setTitle("Position to Remove");
+                dialog.setPickerRange(0, mAdapter.getItemCount()-1);
+                dialog.setOnNumberSelectedListener(new NumberPickerDialog.OnNumberSelectedListener() {
+                    @Override
+                    public void onNumberSelected(int value) {
+                        mAdapter.removeItem(value);
+                    }
+                });
+                dialog.show();
+
                 return true;
             case R.id.action_empty:
                 mAdapter.setItemCount(0);

@@ -67,7 +67,7 @@ public abstract class RecyclerFragment extends Fragment implements AdapterView.O
             case R.id.action_add:
                 dialog = new NumberPickerDialog(getActivity());
                 dialog.setTitle("Position to Add");
-                dialog.setPickerRange(0, mAdapter.getItemCount()-1);
+                dialog.setPickerRange(0, mAdapter.getItemCount());
                 dialog.setOnNumberSelectedListener(new NumberPickerDialog.OnNumberSelectedListener() {
                     @Override
                     public void onNumberSelected(int value) {

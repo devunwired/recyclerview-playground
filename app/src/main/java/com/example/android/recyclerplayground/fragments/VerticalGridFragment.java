@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.example.android.recyclerplayground.InsetDecoration;
+import com.example.android.recyclerplayground.adapters.SimpleAdapter;
 
 public class VerticalGridFragment extends RecyclerFragment {
 
@@ -18,7 +19,7 @@ public class VerticalGridFragment extends RecyclerFragment {
 
     @Override
     protected RecyclerView.LayoutManager getLayoutManager() {
-        return new GridLayoutManager(getActivity(), 2, LinearLayoutManager.VERTICAL, false);
+        return new GridLayoutManager(getActivity(), 2, GridLayoutManager.VERTICAL, false);
     }
 
     @Override
@@ -29,5 +30,10 @@ public class VerticalGridFragment extends RecyclerFragment {
     @Override
     protected int getDefaultItemCount() {
         return 100;
+    }
+
+    @Override
+    protected SimpleAdapter getAdapter() {
+        return new SimpleAdapter();
     }
 }

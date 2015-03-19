@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minWidth="240dp"
+    android:minWidth="@dimen/card_min_width"
     android:padding="8dp"
     android:background="@drawable/background_game">
 

@@ -1,17 +1,19 @@
 package com.example.android.recyclerplayground.fragments;
 
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 
 import com.example.android.recyclerplayground.InsetDecoration;
 import com.example.android.recyclerplayground.adapters.SimpleAdapter;
-import com.example.android.recyclerplayground.layout.FixedGridLayoutManager;
+import com.example.android.recyclerplayground.adapters.SimpleStaggeredAdapter;
 
+public class VerticalStaggeredGridFragment extends RecyclerFragment {
 
-public class FixedTwoWayFragment extends RecyclerFragment{
-
-    public static FixedTwoWayFragment newInstance() {
-        FixedTwoWayFragment fragment = new FixedTwoWayFragment();
+    public static VerticalStaggeredGridFragment newInstance() {
+        VerticalStaggeredGridFragment fragment = new VerticalStaggeredGridFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -19,10 +21,7 @@ public class FixedTwoWayFragment extends RecyclerFragment{
 
     @Override
     protected RecyclerView.LayoutManager getLayoutManager() {
-        FixedGridLayoutManager manager = new FixedGridLayoutManager();
-        manager.setTotalColumnCount(10);
-
-        return manager;
+        return new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
     }
 
     @Override
@@ -32,11 +31,11 @@ public class FixedTwoWayFragment extends RecyclerFragment{
 
     @Override
     protected int getDefaultItemCount() {
-        return 5;
+        return 100;
     }
 
     @Override
     protected SimpleAdapter getAdapter() {
-        return new SimpleAdapter();
+        return new SimpleStaggeredAdapter();
     }
 }

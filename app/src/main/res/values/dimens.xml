@@ -8,4 +8,6 @@
     <dimen name="navigation_drawer_width">240dp</dimen>
 
     <dimen name="card_insets">8dp</dimen>
+    <dimen name="card_min_width">240dp</dimen>
+    <dimen name="card_staggered_height">240dp</dimen>
 </resources>

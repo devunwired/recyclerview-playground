@@ -5,6 +5,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.example.android.recyclerplayground.InsetDecoration;
+import com.example.android.recyclerplayground.adapters.SimpleAdapter;
 
 public class HorizontalFragment extends RecyclerFragment {
 
@@ -28,5 +29,10 @@ public class HorizontalFragment extends RecyclerFragment {
     @Override
     protected int getDefaultItemCount() {
         return 40;
+    }
+
+    @Override
+    protected SimpleAdapter getAdapter() {
+        return new SimpleAdapter();
     }
 }

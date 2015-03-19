@@ -26,6 +26,7 @@ public abstract class RecyclerFragment extends Fragment implements AdapterView.O
     protected abstract RecyclerView.LayoutManager getLayoutManager();
     protected abstract RecyclerView.ItemDecoration getItemDecoration();
     protected abstract int getDefaultItemCount();
+    protected abstract SimpleAdapter getAdapter();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,7 +48,7 @@ public abstract class RecyclerFragment extends Fragment implements AdapterView.O
         mList.getItemAnimator().setMoveDuration(1000);
         mList.getItemAnimator().setRemoveDuration(1000);
 
-        mAdapter = new SimpleAdapter();
+        mAdapter = getAdapter();
         mAdapter.setItemCount(getDefaultItemCount());
         mAdapter.setOnItemClickListener(this);
         mList.setAdapter(mAdapter);

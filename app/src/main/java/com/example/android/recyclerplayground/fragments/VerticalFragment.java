@@ -5,6 +5,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.example.android.recyclerplayground.DividerDecoration;
+import com.example.android.recyclerplayground.adapters.SimpleAdapter;
 
 public class VerticalFragment extends RecyclerFragment {
 
@@ -29,5 +30,10 @@ public class VerticalFragment extends RecyclerFragment {
     @Override
     protected int getDefaultItemCount() {
         return 100;
+    }
+
+    @Override
+    protected SimpleAdapter getAdapter() {
+        return new SimpleAdapter();
     }
 }

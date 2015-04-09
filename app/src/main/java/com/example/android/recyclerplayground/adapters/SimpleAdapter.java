@@ -91,7 +91,7 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
     private void onItemHolderClick(VerticalItemHolder itemHolder) {
         if (mOnItemClickListener != null) {
             mOnItemClickListener.onItemClick(null, itemHolder.itemView,
-                    itemHolder.getPosition(), itemHolder.getItemId());
+                    itemHolder.getAdapterPosition(), itemHolder.getItemId());
         }
     }
 

@@ -120,6 +120,10 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
             detachAndScrapAttachedViews(recycler);
             return;
         }
+        if (getChildCount() == 0 && state.isPreLayout()) {
+            //Nothing to do during prelayout when empty
+            return;
+        }
 
         //Clear change tracking state when a real layout occurs
         if (!state.isPreLayout()) {
@@ -175,7 +179,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
 
         int childLeft;
         int childTop;
-        if (!state.isPreLayout() && getChildCount() == 0) { //First or empty layout
+        if (getChildCount() == 0) { //First or empty layout
             //Reset the visible and scroll positions
             mFirstVisiblePosition = 0;
             childLeft = childTop = 0;

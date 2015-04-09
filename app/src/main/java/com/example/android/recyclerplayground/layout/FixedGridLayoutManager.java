@@ -183,7 +183,8 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
             //Reset the visible and scroll positions
             mFirstVisiblePosition = 0;
             childLeft = childTop = 0;
-        } else if (!state.isPreLayout() && getVisibleChildCount() >= getItemCount()) {
+        } else if (!state.isPreLayout()
+                && getVisibleChildCount() >= state.getItemCount()) {
             //Data set is too small to scroll fully, just reset position
             mFirstVisiblePosition = 0;
             childLeft = childTop = 0;
@@ -210,8 +211,8 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
                 childTop = 0;
 
                 //If the shift overscrolls the column max, back it off
-                if ((mFirstVisiblePosition + mVisibleColumnCount) > getItemCount()) {
-                    mFirstVisiblePosition = Math.max(getItemCount() - mVisibleColumnCount, 0);
+                if ((mFirstVisiblePosition + mVisibleColumnCount) > state.getItemCount()) {
+                    mFirstVisiblePosition = Math.max(state.getItemCount() - mVisibleColumnCount, 0);
                     childLeft = 0;
                 }
             }
@@ -259,7 +260,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
         detachAndScrapAttachedViews(recycler);
 
         //Fill the grid for the initial layout of views
-        fillGrid(DIRECTION_NONE, childLeft, childTop, recycler, state.isPreLayout(), removedCache);
+        fillGrid(DIRECTION_NONE, childLeft, childTop, recycler, state, removedCache);
 
         //Evaluate any disappearing views that may exist
         if (!state.isPreLayout() && !recycler.getScrapList().isEmpty()) {
@@ -313,11 +314,14 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    private void fillGrid(int direction, RecyclerView.Recycler recycler) {
-        fillGrid(direction, 0, 0, recycler, false, null);
+    private void fillGrid(int direction, RecyclerView.Recycler recycler, RecyclerView.State state) {
+        fillGrid(direction, 0, 0, recycler, state, null);
     }
 
-    private void fillGrid(int direction, int emptyLeft, int emptyTop, RecyclerView.Recycler recycler, boolean preLayout, SparseIntArray removedPositions) {
+    private void fillGrid(int direction, int emptyLeft, int emptyTop,
+                          RecyclerView.Recycler recycler,
+                          RecyclerView.State state,
+                          SparseIntArray removedPositions) {
         if (mFirstVisiblePosition < 0) mFirstVisiblePosition = 0;
         if (mFirstVisiblePosition >= getItemCount()) mFirstVisiblePosition = (getItemCount() - 1);
 
@@ -401,7 +405,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
              * initial locations.
              */
             int offsetPositionDelta = 0;
-            if (preLayout) {
+            if (state.isPreLayout()) {
                 int offsetPosition = nextPosition;
 
                 for (int offset = 0; offset < removedPositions.size(); offset++) {
@@ -416,7 +420,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
                 nextPosition = offsetPosition;
             }
 
-            if (nextPosition < 0 || nextPosition >= getItemCount()) {
+            if (nextPosition < 0 || nextPosition >= state.getItemCount()) {
                 //Item space beyond the data set, don't attempt to add a view
                 continue;
             }
@@ -437,7 +441,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
                  * Update the new view's metadata, but only when this is a real
                  * layout pass.
                  */
-                if (!preLayout) {
+                if (!state.isPreLayout()) {
                     LayoutParams lp = (LayoutParams) view.getLayoutParams();
                     lp.row = getGlobalRowOfPosition(nextPosition);
                     lp.column = getGlobalColumnOfPosition(nextPosition);
@@ -464,7 +468,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
                 topOffset += mDecoratedChildHeight;
 
                 //During pre-layout, on each column end, apply any additional appearing views
-                if (preLayout) {
+                if (state.isPreLayout()) {
                     layoutAppearingViews(recycler, view, nextPosition, removedPositions.size(), offsetPositionDelta);
                 }
             } else {
@@ -603,15 +607,15 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
 
         if (dx > 0) {
             if (getDecoratedRight(topView) < 0 && !rightBoundReached) {
-                fillGrid(DIRECTION_END, recycler);
+                fillGrid(DIRECTION_END, recycler, state);
             } else if (!rightBoundReached) {
-                fillGrid(DIRECTION_NONE, recycler);
+                fillGrid(DIRECTION_NONE, recycler, state);
             }
         } else {
             if (getDecoratedLeft(topView) > 0 && !leftBoundReached) {
-                fillGrid(DIRECTION_START, recycler);
+                fillGrid(DIRECTION_START, recycler, state);
             } else if (!leftBoundReached) {
-                fillGrid(DIRECTION_NONE, recycler);
+                fillGrid(DIRECTION_NONE, recycler, state);
             }
         }
 
@@ -700,15 +704,15 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
 
         if (dy > 0) {
             if (getDecoratedBottom(topView) < 0 && !bottomBoundReached) {
-                fillGrid(DIRECTION_DOWN, recycler);
+                fillGrid(DIRECTION_DOWN, recycler, state);
             } else if (!bottomBoundReached) {
-                fillGrid(DIRECTION_NONE, recycler);
+                fillGrid(DIRECTION_NONE, recycler, state);
             }
         } else {
             if (getDecoratedTop(topView) > 0 && !topBoundReached) {
-                fillGrid(DIRECTION_UP, recycler);
+                fillGrid(DIRECTION_UP, recycler, state);
             } else if (!topBoundReached) {
-                fillGrid(DIRECTION_NONE, recycler);
+                fillGrid(DIRECTION_NONE, recycler, state);
             }
         }
 

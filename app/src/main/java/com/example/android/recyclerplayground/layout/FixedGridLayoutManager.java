@@ -164,7 +164,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
 
                 if (lp.isItemRemoved()) {
                     //Track these view removals as visible
-                    removedCache.put(lp.getViewPosition(), REMOVE_VISIBLE);
+                    removedCache.put(lp.getViewAdapterPosition(), REMOVE_VISIBLE);
                 }
             }
 
@@ -837,9 +837,9 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
         //Adjust each disappearing view to its proper place
         final LayoutParams lp = (LayoutParams) disappearingChild.getLayoutParams();
 
-        final int newRow = getGlobalRowOfPosition(lp.getViewPosition());
+        final int newRow = getGlobalRowOfPosition(lp.getViewAdapterPosition());
         final int rowDelta = newRow - lp.row;
-        final int newCol = getGlobalColumnOfPosition(lp.getViewPosition());
+        final int newCol = getGlobalColumnOfPosition(lp.getViewAdapterPosition());
         final int colDelta = newCol - lp.column;
 
         layoutTempChildView(disappearingChild, rowDelta, colDelta, disappearingChild);

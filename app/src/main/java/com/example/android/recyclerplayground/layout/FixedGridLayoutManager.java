@@ -164,7 +164,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
 
                 if (lp.isItemRemoved()) {
                     //Track these view removals as visible
-                    removedCache.put(lp.getViewAdapterPosition(), REMOVE_VISIBLE);
+                    removedCache.put(lp.getViewLayoutPosition(), REMOVE_VISIBLE);
                 }
             }
 
@@ -801,6 +801,7 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
         //Nothing to do...
         if (extraCount < 1) return;
 
+        //FIXME: This code currently causes double layout of views that are still visible…
         for (int extra = 1; extra <= extraCount; extra++) {
             //Grab the next position after the reference
             final int extraPosition = referencePosition + extra;

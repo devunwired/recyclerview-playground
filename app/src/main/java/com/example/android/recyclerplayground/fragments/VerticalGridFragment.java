@@ -2,7 +2,6 @@ package com.example.android.recyclerplayground.fragments;
 
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.example.android.recyclerplayground.InsetDecoration;

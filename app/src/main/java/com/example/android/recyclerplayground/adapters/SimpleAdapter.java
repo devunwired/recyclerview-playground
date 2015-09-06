@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.example.android.recyclerplayground.R;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -22,21 +23,21 @@ public abstract class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.V
      * the view. However, this method will not trigger any of the RecyclerView
      * animation features.
      */
-    protected abstract void setItemCount(int count);
+    public abstract void setItemCount(int count);
 
     /*
      * Inserting a new item at the head of the list. This uses a specialized
      * RecyclerView method, notifyItemInserted(), to trigger any enabled item
      * animations in addition to updating the view.
      */
-    protected abstract void addItem(int position);
+    public abstract void addItem(int position);
 
     /*
      * Inserting a new item at the head of the list. This uses a specialized
      * RecyclerView method, notifyItemRemoved(), to trigger any enabled item
      * animations in addition to updating the view.
      */
-    protected abstract void removeItem(int position);
+    public abstract void removeItem(int position);
 
     @Override
     public VerticalItemHolder onCreateViewHolder(ViewGroup container, int viewType) {
@@ -62,7 +63,7 @@ public abstract class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.V
     @Override
     public abstract int getItemCount();
 
-    protected void setOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
+    public void setOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
         mOnItemClickListener = onItemClickListener;
     }
 
@@ -134,5 +135,7 @@ public abstract class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.V
                 random.nextInt(100) );
     }
 
-    protected abstract List<SimpleAdapter.GameItem> generateDummyData(int count);
+    protected static List<SimpleAdapter.GameItem> generateDummyData(int count){
+        return new ArrayList<SimpleAdapter.GameItem>();
+    }
 }

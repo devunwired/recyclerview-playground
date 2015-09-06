@@ -14,19 +14,19 @@ import android.widget.Toast;
 
 import com.example.android.recyclerplayground.NumberPickerDialog;
 import com.example.android.recyclerplayground.R;
-import com.example.android.recyclerplayground.adapters.SimpleArrayListAdapter;
+import com.example.android.recyclerplayground.adapters.SimpleAdapter;
 
 public abstract class RecyclerFragment extends Fragment implements AdapterView.OnItemClickListener {
 
     private RecyclerView mList;
-    private SimpleArrayListAdapter mAdapter;
+    private SimpleAdapter mAdapter;
 
     /** Required Overrides for Sample Fragments */
 
     protected abstract RecyclerView.LayoutManager getLayoutManager();
     protected abstract RecyclerView.ItemDecoration getItemDecoration();
     protected abstract int getDefaultItemCount();
-    protected abstract SimpleArrayListAdapter getAdapter();
+    protected abstract SimpleAdapter getAdapter();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

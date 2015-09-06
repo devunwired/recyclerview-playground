@@ -1,26 +1,14 @@
 package com.example.android.recyclerplayground.adapters;
 
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.TextView;
-
-import com.example.android.recyclerplayground.R;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-public class SimpleArrayListAdapter extends RecyclerView.Adapter<SimpleArrayListAdapter.VerticalItemHolder> {
+public class SimpleArrayListAdapter extends SimpleAdapter {
 
     private ArrayList<GameItem> mItems;
 
-    private AdapterView.OnItemClickListener mOnItemClickListener;
-
     public SimpleArrayListAdapter() {
-        mItems = new ArrayList<GameItem>();
+        mItems = new ArrayList<SimpleAdapter.GameItem>();
     }
 
     /*
@@ -61,22 +49,8 @@ public class SimpleArrayListAdapter extends RecyclerView.Adapter<SimpleArrayList
     }
 
     @Override
-    public VerticalItemHolder onCreateViewHolder(ViewGroup container, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(container.getContext());
-        View root = inflater.inflate(R.layout.view_match_item, container, false);
-
-        return new VerticalItemHolder(root, this);
-    }
-
-    @Override
-    public void onBindViewHolder(VerticalItemHolder itemHolder, int position) {
-        GameItem item = mItems.get(position);
-
-        itemHolder.setAwayScore(String.valueOf(item.awayScore));
-        itemHolder.setHomeScore(String.valueOf(item.homeScore));
-
-        itemHolder.setAwayName(item.awayTeam);
-        itemHolder.setHomeName(item.homeTeam);
+    protected SimpleAdapter.GameItem getItem(int position) {
+        return mItems.get(position);
     }
 
     @Override
@@ -84,83 +58,11 @@ public class SimpleArrayListAdapter extends RecyclerView.Adapter<SimpleArrayList
         return mItems.size();
     }
 
-    public void setOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
-        mOnItemClickListener = onItemClickListener;
-    }
-
-    private void onItemHolderClick(VerticalItemHolder itemHolder) {
-        if (mOnItemClickListener != null) {
-            mOnItemClickListener.onItemClick(null, itemHolder.itemView,
-                    itemHolder.getAdapterPosition(), itemHolder.getItemId());
-        }
-    }
-
-    public static class GameItem {
-        public String homeTeam;
-        public String awayTeam;
-        public int homeScore;
-        public int awayScore;
-
-        public GameItem(String homeTeam, String awayTeam, int homeScore, int awayScore) {
-            this.homeTeam = homeTeam;
-            this.awayTeam = awayTeam;
-            this.homeScore = homeScore;
-            this.awayScore = awayScore;
-        }
-    }
-
-    public static class VerticalItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private TextView mHomeScore, mAwayScore;
-        private TextView mHomeName, mAwayName;
-
-        private SimpleArrayListAdapter mAdapter;
-
-        public VerticalItemHolder(View itemView, SimpleArrayListAdapter adapter) {
-            super(itemView);
-            itemView.setOnClickListener(this);
-
-            mAdapter = adapter;
-
-            mHomeScore = (TextView) itemView.findViewById(R.id.text_score_home);
-            mAwayScore = (TextView) itemView.findViewById(R.id.text_score_away);
-            mHomeName = (TextView) itemView.findViewById(R.id.text_team_home);
-            mAwayName = (TextView) itemView.findViewById(R.id.text_team_away);
-        }
-
-        @Override
-        public void onClick(View v) {
-            mAdapter.onItemHolderClick(this);
-        }
-
-        public void setHomeScore(CharSequence homeScore) {
-            mHomeScore.setText(homeScore);
-        }
-
-        public void setAwayScore(CharSequence awayScore) {
-            mAwayScore.setText(awayScore);
-        }
-
-        public void setHomeName(CharSequence homeName) {
-            mHomeName.setText(homeName);
-        }
-
-        public void setAwayName(CharSequence awayName) {
-            mAwayName.setText(awayName);
-        }
-    }
-
-    public static GameItem generateDummyItem() {
-        Random random = new Random();
-        return new GameItem("Upset Home", "Upset Away",
-                random.nextInt(100),
-                random.nextInt(100) );
-    }
-
-    public static List<SimpleArrayListAdapter.GameItem> generateDummyData(int count) {
-        ArrayList<SimpleArrayListAdapter.GameItem> items = new ArrayList<SimpleArrayListAdapter.GameItem>();
+    public static List<SimpleAdapter.GameItem> generateDummyData(int count) {
+        ArrayList<SimpleAdapter.GameItem> items = new ArrayList<SimpleAdapter.GameItem>();
 
         for (int i=0; i < count; i++) {
-            items.add(new SimpleArrayListAdapter.GameItem("Losers", "Winners", i, i+5));
+            items.add(new SimpleAdapter.GameItem("Losers", "Winners", i, i+5));
         }
 
         return items;

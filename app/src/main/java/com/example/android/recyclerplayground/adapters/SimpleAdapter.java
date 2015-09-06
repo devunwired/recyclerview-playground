@@ -9,19 +9,12 @@ import android.widget.TextView;
 
 import com.example.android.recyclerplayground.R;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalItemHolder> {
+public abstract class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalItemHolder> {
 
-    private ArrayList<GameItem> mItems;
-
-    private AdapterView.OnItemClickListener mOnItemClickListener;
-
-    public SimpleAdapter() {
-        mItems = new ArrayList<GameItem>();
-    }
+    protected AdapterView.OnItemClickListener mOnItemClickListener;
 
     /*
      * A common adapter modification or reset mechanism. As with ListAdapter,
@@ -29,36 +22,21 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
      * the view. However, this method will not trigger any of the RecyclerView
      * animation features.
      */
-    public void setItemCount(int count) {
-        mItems.clear();
-        mItems.addAll(generateDummyData(count));
-
-        notifyDataSetChanged();
-    }
+    protected abstract void setItemCount(int count);
 
     /*
      * Inserting a new item at the head of the list. This uses a specialized
      * RecyclerView method, notifyItemInserted(), to trigger any enabled item
      * animations in addition to updating the view.
      */
-    public void addItem(int position) {
-        if (position > mItems.size()) return;
-
-        mItems.add(position, generateDummyItem());
-        notifyItemInserted(position);
-    }
+    protected abstract void addItem(int position);
 
     /*
      * Inserting a new item at the head of the list. This uses a specialized
      * RecyclerView method, notifyItemRemoved(), to trigger any enabled item
      * animations in addition to updating the view.
      */
-    public void removeItem(int position) {
-        if (position >= mItems.size()) return;
-
-        mItems.remove(position);
-        notifyItemRemoved(position);
-    }
+    protected abstract void removeItem(int position);
 
     @Override
     public VerticalItemHolder onCreateViewHolder(ViewGroup container, int viewType) {
@@ -70,7 +48,7 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
 
     @Override
     public void onBindViewHolder(VerticalItemHolder itemHolder, int position) {
-        GameItem item = mItems.get(position);
+        GameItem item = this.getItem(position);
 
         itemHolder.setAwayScore(String.valueOf(item.awayScore));
         itemHolder.setHomeScore(String.valueOf(item.homeScore));
@@ -79,12 +57,12 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
         itemHolder.setHomeName(item.homeTeam);
     }
 
-    @Override
-    public int getItemCount() {
-        return mItems.size();
-    }
+    protected abstract GameItem getItem(int position);
 
-    public void setOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
+    @Override
+    public abstract int getItemCount();
+
+    protected void setOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
         mOnItemClickListener = onItemClickListener;
     }
 
@@ -95,7 +73,7 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
         }
     }
 
-    public static class GameItem {
+    protected static class GameItem {
         public String homeTeam;
         public String awayTeam;
         public int homeScore;
@@ -156,13 +134,5 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
                 random.nextInt(100) );
     }
 
-    public static List<SimpleAdapter.GameItem> generateDummyData(int count) {
-        ArrayList<SimpleAdapter.GameItem> items = new ArrayList<SimpleAdapter.GameItem>();
-
-        for (int i=0; i < count; i++) {
-            items.add(new SimpleAdapter.GameItem("Losers", "Winners", i, i+5));
-        }
-
-        return items;
-    }
+    protected abstract List<SimpleAdapter.GameItem> generateDummyData(int count);
 }

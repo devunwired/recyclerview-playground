@@ -5,7 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 
 import com.example.android.recyclerplayground.InsetDecoration;
-import com.example.android.recyclerplayground.adapters.SimpleAdapter;
+import com.example.android.recyclerplayground.adapters.SimpleArrayListAdapter;
 import com.example.android.recyclerplayground.adapters.SimpleStaggeredAdapter;
 
 public class VerticalStaggeredGridFragment extends RecyclerFragment {
@@ -33,7 +33,7 @@ public class VerticalStaggeredGridFragment extends RecyclerFragment {
     }
 
     @Override
-    protected SimpleAdapter getAdapter() {
+    protected SimpleArrayListAdapter getAdapter() {
         return new SimpleStaggeredAdapter();
     }
 }

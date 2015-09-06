@@ -13,13 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalItemHolder> {
+public class SimpleArrayListAdapter extends RecyclerView.Adapter<SimpleArrayListAdapter.VerticalItemHolder> {
 
     private ArrayList<GameItem> mItems;
 
     private AdapterView.OnItemClickListener mOnItemClickListener;
 
-    public SimpleAdapter() {
+    public SimpleArrayListAdapter() {
         mItems = new ArrayList<GameItem>();
     }
 
@@ -43,7 +43,7 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
      */
     public void addItem(int position) {
         if (position > mItems.size()) return;
-        
+
         mItems.add(position, generateDummyItem());
         notifyItemInserted(position);
     }
@@ -113,9 +113,9 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
         private TextView mHomeScore, mAwayScore;
         private TextView mHomeName, mAwayName;
 
-        private SimpleAdapter mAdapter;
+        private SimpleArrayListAdapter mAdapter;
 
-        public VerticalItemHolder(View itemView, SimpleAdapter adapter) {
+        public VerticalItemHolder(View itemView, SimpleArrayListAdapter adapter) {
             super(itemView);
             itemView.setOnClickListener(this);
 
@@ -156,11 +156,11 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
                 random.nextInt(100) );
     }
 
-    public static List<SimpleAdapter.GameItem> generateDummyData(int count) {
-        ArrayList<SimpleAdapter.GameItem> items = new ArrayList<SimpleAdapter.GameItem>();
+    public static List<SimpleArrayListAdapter.GameItem> generateDummyData(int count) {
+        ArrayList<SimpleArrayListAdapter.GameItem> items = new ArrayList<SimpleArrayListAdapter.GameItem>();
 
         for (int i=0; i < count; i++) {
-            items.add(new SimpleAdapter.GameItem("Losers", "Winners", i, i+5));
+            items.add(new SimpleArrayListAdapter.GameItem("Losers", "Winners", i, i+5));
         }
 
         return items;

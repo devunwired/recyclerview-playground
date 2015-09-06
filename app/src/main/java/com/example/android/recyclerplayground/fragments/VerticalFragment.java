@@ -5,7 +5,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.example.android.recyclerplayground.DividerDecoration;
-import com.example.android.recyclerplayground.adapters.SimpleAdapter;
+import com.example.android.recyclerplayground.adapters.SimpleArrayListAdapter;
 
 public class VerticalFragment extends RecyclerFragment {
 
@@ -33,7 +33,7 @@ public class VerticalFragment extends RecyclerFragment {
     }
 
     @Override
-    protected SimpleAdapter getAdapter() {
-        return new SimpleAdapter();
+    protected SimpleArrayListAdapter getAdapter() {
+        return new SimpleArrayListAdapter();
     }
 }

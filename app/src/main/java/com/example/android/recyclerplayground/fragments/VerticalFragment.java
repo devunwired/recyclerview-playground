@@ -6,7 +6,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.example.android.recyclerplayground.DividerDecoration;
 import com.example.android.recyclerplayground.adapters.SimpleAdapter;
-import com.example.android.recyclerplayground.adapters.SimpleArrayListAdapter;
+import com.example.android.recyclerplayground.adapters.SimpleCursorAdapter;
 
 public class VerticalFragment extends RecyclerFragment {
 
@@ -35,6 +35,6 @@ public class VerticalFragment extends RecyclerFragment {
 
     @Override
     protected SimpleAdapter getAdapter() {
-        return new SimpleArrayListAdapter();
+        return new SimpleCursorAdapter(getActivity());
     }
 }

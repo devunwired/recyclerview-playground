@@ -1,5 +1,7 @@
 package com.example.android.recyclerplayground.adapters;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +21,7 @@ public class SimpleArrayListAdapter extends SimpleAdapter {
      */
     public void setItemCount(int count) {
         mItems.clear();
-        mItems.addAll(generateDummyData(count));
+        mItems.addAll(generateDummyData(count, mContext));
 
         notifyDataSetChanged();
     }
@@ -58,11 +60,11 @@ public class SimpleArrayListAdapter extends SimpleAdapter {
         return mItems.size();
     }
 
-    public static List<SimpleAdapter.GameItem> generateDummyData(int count) {
+    public static List<SimpleAdapter.GameItem> generateDummyData(int count, Context context) {
         ArrayList<SimpleAdapter.GameItem> items = new ArrayList<SimpleAdapter.GameItem>();
 
-        for (int i=0; i < count; i++) {
-            items.add(new SimpleAdapter.GameItem("Losers", "Winners", i, i+5));
+        for (int i = 0; i < count; i++) {
+            items.add(new SimpleAdapter.GameItem("Losers", "Winners", i, i + 5));
         }
 
         return items;

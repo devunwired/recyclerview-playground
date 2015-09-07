@@ -1,6 +1,8 @@
 package com.example.android.recyclerplayground.adapters;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,7 @@ import java.util.Random;
 public abstract class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalItemHolder> {
 
     protected AdapterView.OnItemClickListener mOnItemClickListener;
+    protected Context mContext;
 
     /*
      * A common adapter modification or reset mechanism. As with ListAdapter,
@@ -50,12 +53,19 @@ public abstract class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.V
     @Override
     public void onBindViewHolder(VerticalItemHolder itemHolder, int position) {
         GameItem item = this.getItem(position);
-
+        if (item == null) {
+            Log.d(SimpleAdapter.class.getSimpleName(), "Something is wrong with finding item " + position);
+            return;
+        }
         itemHolder.setAwayScore(String.valueOf(item.awayScore));
         itemHolder.setHomeScore(String.valueOf(item.homeScore));
 
         itemHolder.setAwayName(item.awayTeam);
         itemHolder.setHomeName(item.homeTeam);
+    }
+
+    public void onDestroy() {
+        mContext = null;
     }
 
     protected abstract GameItem getItem(int position);
@@ -135,7 +145,7 @@ public abstract class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.V
                 random.nextInt(100) );
     }
 
-    protected static List<SimpleAdapter.GameItem> generateDummyData(int count){
+    protected static List<SimpleAdapter.GameItem> generateDummyData(int count, Context context) {
         return new ArrayList<SimpleAdapter.GameItem>();
     }
 }

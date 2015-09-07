@@ -164,7 +164,7 @@ public class SimpleCursorAdapter extends SimpleAdapter {
         ContentValues values;
         for (int i = 0; i < count; i++) {
             game = generateDummyItem();
-            values = convertGameIntoContentValues(game, i+1);
+            values = convertGameIntoContentValues(game, i);
             context.getContentResolver().insert(GameContentProvider.CONTENT_URI, values);
         }
 

@@ -103,7 +103,7 @@ public class GameContentProvider extends ContentProvider {
         if (rowID > 0) {
             if (values.getAsString(KEY_PRIORITY) == null) {
                 values.put(KEY_PRIORITY, rowID);
-                long priority = rowID;// + 1;
+                long priority = rowID - 1;
                 database.update(DATABASE_TABLE, values, KEY_ID + "=" + priority, null);
             }
             Uri returnUri = ContentUris.withAppendedId(CONTENT_URI, rowID);

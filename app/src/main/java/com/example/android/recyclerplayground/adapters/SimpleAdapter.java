@@ -18,7 +18,12 @@ import java.util.Random;
 public abstract class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalItemHolder> {
 
     protected AdapterView.OnItemClickListener mOnItemClickListener;
+
     protected Context mContext;
+
+    public void onDestroy() {
+        mContext = null;
+    }
 
     /*
      * A common adapter modification or reset mechanism. As with ListAdapter,
@@ -64,14 +69,10 @@ public abstract class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.V
         itemHolder.setHomeName(item.homeTeam);
     }
 
-    public void onDestroy() {
-        mContext = null;
-    }
-
-    protected abstract GameItem getItem(int position);
-
     @Override
     public abstract int getItemCount();
+
+    protected abstract GameItem getItem(int position);
 
     public void setOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
         mOnItemClickListener = onItemClickListener;
@@ -84,7 +85,7 @@ public abstract class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.V
         }
     }
 
-    protected static class GameItem {
+    public static class GameItem {
         public String homeTeam;
         public String awayTeam;
         public int homeScore;

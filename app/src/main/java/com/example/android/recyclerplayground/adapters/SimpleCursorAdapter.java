@@ -58,21 +58,6 @@ public class SimpleCursorAdapter extends SimpleAdapter {
     public void removeItem(int zeroIndexPosition) {
         if (mContext == null) return;
 
-//        String[] projection = {GameContentProvider.KEY_ID};
-//        CursorLoader loader = new CursorLoader(mContext, GameContentProvider.CONTENT_URI, projection, null, null, null);
-//        Cursor cursor = loader.loadInBackground();
-//
-//        if (cursor == null) {
-//            Log.e(SimpleCursorAdapter.class.getSimpleName(), "The cursor is null, maybe your provider is badly declared in the AndroidManifest?");
-//            return;
-//        }
-//
-//        if (position >= cursor.getCount()) {
-//            cursor.close();
-//            return;
-//        }
-//        cursor.close();
-
         Uri toBeDeleted = Uri.withAppendedPath(GameContentProvider.CONTENT_URI, getDBIdFromArrayPosition(zeroIndexPosition) + "");
 
         int deletedCount = mContext.getContentResolver().delete(toBeDeleted, null, null);
@@ -86,10 +71,10 @@ public class SimpleCursorAdapter extends SimpleAdapter {
             return null;
         }
         // Using DB indicies, not array indicies
-        int position = getDBIdFromArrayPosition(zeroIndexPosition);
+        int id = getDBIdFromArrayPosition(zeroIndexPosition);
 
         String[] projection = {GameContentProvider.KEY_ID, GameContentProvider.KEY_HOME_TEAM, GameContentProvider.KEY_AWAY_TEAM, GameContentProvider.KEY_HOME_TEAM_SCORE, GameContentProvider.KEY_AWAY_TEAM_SCORE, GameContentProvider.KEY_PRIORITY, GameContentProvider.KEY_DATE};
-        Uri toBeFound = Uri.withAppendedPath(GameContentProvider.CONTENT_URI, position + "");
+        Uri toBeFound = Uri.withAppendedPath(GameContentProvider.CONTENT_URI, id + "");
         Cursor cursor = mContext.getContentResolver().query(toBeFound, projection, null, null, null);
 
         if (cursor == null) {
@@ -108,6 +93,7 @@ public class SimpleCursorAdapter extends SimpleAdapter {
                 cursor.getInt(cursor.getColumnIndexOrThrow(GameContentProvider.KEY_AWAY_TEAM_SCORE)));
 
         cursor.close();
+        cursor = null;
 
         return game;
     }
@@ -123,10 +109,13 @@ public class SimpleCursorAdapter extends SimpleAdapter {
 
         if (cursor == null) {
             Log.e(SimpleCursorAdapter.class.getSimpleName(), "The cursor is null, maybe your provider is not declared in the AndroidManifest?");
+            loader = null;
             return 0;
         }
         int itemCount = cursor.getCount();
         cursor.close();
+        cursor = null;
+        loader = null;
 
         return itemCount;
     }
@@ -156,8 +145,14 @@ public class SimpleCursorAdapter extends SimpleAdapter {
         Cursor cursor = loader.loadInBackground();
         if (cursor != null && cursor.getCount() >= count) {
             cursor.close();
+            cursor = null;
+            loader = null;
             return new ArrayList<SimpleAdapter.GameItem>();
         }
+
+        cursor.close();
+        cursor = null;
+        loader = null;
 
         // Create some data
         SimpleAdapter.GameItem game;

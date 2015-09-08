@@ -5,11 +5,7 @@ import android.view.View;
 
 import com.example.android.recyclerplayground.R;
 
-public class SimpleStaggeredAdapter extends SimpleCursorAdapter {
-
-    public SimpleStaggeredAdapter(Context context) {
-        super(context);
-    }
+public class SimpleStaggeredAdapter extends SimpleArrayListAdapter {
 
     @Override
     public void onBindViewHolder(VerticalItemHolder itemHolder, int position) {

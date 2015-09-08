@@ -34,6 +34,6 @@ public class VerticalStaggeredGridFragment extends RecyclerFragment {
 
     @Override
     protected SimpleAdapter getAdapter() {
-        return new SimpleStaggeredAdapter(getActivity());
+        return new SimpleStaggeredAdapter();
     }
 }

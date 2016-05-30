@@ -57,8 +57,6 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
     /* Metrics for the visible window of our data */
     private int mVisibleColumnCount;
     private int mVisibleRowCount;
-    /* Flag to force current scroll offsets to be ignored on re-layout */
-    private boolean mForceClearOffsets;
 
     /* Used for tracking off-screen change events */
     private int mFirstChangedPosition;
@@ -196,14 +194,8 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
              * the current scrolled offset.
              */
             final View topChild = getChildAt(0);
-            if (mForceClearOffsets) {
-                childLeft = getPaddingLeft();
-                childTop = getPaddingTop();
-                mForceClearOffsets = false;
-            } else {
-                childLeft = getDecoratedLeft(topChild);
-                childTop = getDecoratedTop(topChild);
-            }
+            childLeft = getDecoratedLeft(topChild);
+            childTop = getDecoratedTop(topChild);
 
             /*
              * When data set is too small to scroll vertically, adjust vertical offset
@@ -334,8 +326,6 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
          * quickly reorder views without a full add/remove.
          */
         SparseArray<View> viewCache = new SparseArray<View>(getChildCount());
-//        int startLeftOffset = getPaddingLeft() + emptyLeft;
-//        int startTopOffset = getPaddingTop() + emptyTop;
         int startLeftOffset = emptyLeft;
         int startTopOffset = emptyTop;
         if (getChildCount() != 0) {
@@ -505,10 +495,10 @@ public class FixedGridLayoutManager extends RecyclerView.LayoutManager {
             return;
         }
 
-        //Ignore current scroll offset, snap to top-left
-        mForceClearOffsets = true;
         //Set requested position as first visible
         mFirstVisiblePosition = position;
+        //Toss all existing views away
+        removeAllViews();
         //Trigger a new view layout
         requestLayout();
     }

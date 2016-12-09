@@ -16,6 +16,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider android:name=".database.GameContentProvider"
+            android:authorities="com.example.android.recyclerplayground.provider.game" />
     </application>
 
 </manifest>

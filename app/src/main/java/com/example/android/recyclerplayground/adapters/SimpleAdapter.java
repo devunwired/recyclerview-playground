@@ -1,6 +1,8 @@
 package com.example.android.recyclerplayground.adapters;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,14 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalItemHolder> {
+public abstract class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalItemHolder> {
 
-    private ArrayList<GameItem> mItems;
+    protected AdapterView.OnItemClickListener mOnItemClickListener;
 
-    private AdapterView.OnItemClickListener mOnItemClickListener;
+    protected Context mContext;
 
-    public SimpleAdapter() {
-        mItems = new ArrayList<GameItem>();
+    public void onDestroy() {
+        mContext = null;
     }
 
     /*
@@ -29,36 +31,21 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
      * the view. However, this method will not trigger any of the RecyclerView
      * animation features.
      */
-    public void setItemCount(int count) {
-        mItems.clear();
-        mItems.addAll(generateDummyData(count));
-
-        notifyDataSetChanged();
-    }
+    public abstract void setItemCount(int count);
 
     /*
      * Inserting a new item at the head of the list. This uses a specialized
      * RecyclerView method, notifyItemInserted(), to trigger any enabled item
      * animations in addition to updating the view.
      */
-    public void addItem(int position) {
-        if (position > mItems.size()) return;
-        
-        mItems.add(position, generateDummyItem());
-        notifyItemInserted(position);
-    }
+    public abstract void addItem(int position);
 
     /*
      * Inserting a new item at the head of the list. This uses a specialized
      * RecyclerView method, notifyItemRemoved(), to trigger any enabled item
      * animations in addition to updating the view.
      */
-    public void removeItem(int position) {
-        if (position >= mItems.size()) return;
-
-        mItems.remove(position);
-        notifyItemRemoved(position);
-    }
+    public abstract void removeItem(int position);
 
     @Override
     public VerticalItemHolder onCreateViewHolder(ViewGroup container, int viewType) {
@@ -70,8 +57,11 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
 
     @Override
     public void onBindViewHolder(VerticalItemHolder itemHolder, int position) {
-        GameItem item = mItems.get(position);
-
+        GameItem item = this.getItem(position);
+        if (item == null) {
+            Log.d(SimpleAdapter.class.getSimpleName(), "Something is wrong with finding item " + position);
+            return;
+        }
         itemHolder.setAwayScore(String.valueOf(item.awayScore));
         itemHolder.setHomeScore(String.valueOf(item.homeScore));
 
@@ -80,9 +70,9 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
     }
 
     @Override
-    public int getItemCount() {
-        return mItems.size();
-    }
+    public abstract int getItemCount();
+
+    protected abstract GameItem getItem(int position);
 
     public void setOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
         mOnItemClickListener = onItemClickListener;
@@ -156,13 +146,7 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.VerticalIt
                 random.nextInt(100) );
     }
 
-    public static List<SimpleAdapter.GameItem> generateDummyData(int count) {
-        ArrayList<SimpleAdapter.GameItem> items = new ArrayList<SimpleAdapter.GameItem>();
-
-        for (int i=0; i < count; i++) {
-            items.add(new SimpleAdapter.GameItem("Losers", "Winners", i, i+5));
-        }
-
-        return items;
+    protected static List<SimpleAdapter.GameItem> generateDummyData(int count, Context context) {
+        return new ArrayList<SimpleAdapter.GameItem>();
     }
 }

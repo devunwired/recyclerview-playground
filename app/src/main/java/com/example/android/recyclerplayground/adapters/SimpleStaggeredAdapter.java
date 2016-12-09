@@ -1,10 +1,11 @@
 package com.example.android.recyclerplayground.adapters;
 
+import android.content.Context;
 import android.view.View;
 
 import com.example.android.recyclerplayground.R;
 
-public class SimpleStaggeredAdapter extends SimpleAdapter {
+public class SimpleStaggeredAdapter extends SimpleArrayListAdapter {
 
     @Override
     public void onBindViewHolder(VerticalItemHolder itemHolder, int position) {

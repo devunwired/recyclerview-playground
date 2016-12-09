@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.example.android.recyclerplayground.InsetDecoration;
 import com.example.android.recyclerplayground.adapters.SimpleAdapter;
+import com.example.android.recyclerplayground.adapters.SimpleArrayListAdapter;
 import com.example.android.recyclerplayground.layout.FixedGridLayoutManager;
 
 
@@ -37,6 +38,6 @@ public class FixedTwoWayFragment extends RecyclerFragment{
 
     @Override
     protected SimpleAdapter getAdapter() {
-        return new SimpleAdapter();
+        return new SimpleArrayListAdapter();
     }
 }

@@ -2,8 +2,9 @@ package com.example.android.recyclerplayground;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * ItemDecoration implementation that applies an inset margin

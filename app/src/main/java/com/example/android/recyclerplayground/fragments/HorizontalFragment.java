@@ -1,8 +1,9 @@
 package com.example.android.recyclerplayground.fragments;
 
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.android.recyclerplayground.InsetDecoration;
 import com.example.android.recyclerplayground.adapters.SimpleAdapter;
